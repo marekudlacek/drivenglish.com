@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DrivEnglish</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111828;
+    --surface2: #1a2336;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --text: #e8f0fe;
+    --muted: #6b7fa3;
+    --success: #00e5a0;
+    --glow: 0 0 30px rgba(0,212,255,0.3);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; overflow-x: hidden; overflow-y: auto; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background: radial-gradient(ellipse at 15% 15%, rgba(0,212,255,0.07) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 85%, rgba(255,107,53,0.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .road-lines { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 60px; height: 100vh; overflow: hidden; pointer-events: none; opacity: 0.07; }
+  .road-lines::after {
+    content: ''; position: absolute; top: -100%; left: 50%; transform: translateX(-50%);
+    width: 6px; height: 200%;
+    background: repeating-linear-gradient(to bottom, white 0 40px, transparent 40px 80px);
+    animation: roadMove 1.5s linear infinite;
+  }
+  @keyframes roadMove { from { transform: translateX(-50%) translateY(0); } to { transform: translateX(-50%) translateY(80px); } }
+
+.app { position: relative; z-index: 1; min-height: 100vh; max-width: 580px; margin: 0 auto; padding: 12px 16px 40px; display: flex; flex-direction: column; gap: 8px; }
+
+.header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.logo { font-family: ‘Rajdhani’, sans-serif; font-size: 1.35rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-shadow: var(--glow); }
+.logo span { color: #ffffff; }
+.progress-info { font-family: ‘Rajdhani’, sans-serif; font-size: 1rem; color: var(--muted); }
+.progress-info b { color: var(--text); }
+
+.progress-bar { height: 3px; flex-shrink: 0; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.5s ease; }
+
+.word-display {
+background: var(--surface); border: 1px solid rgba(0,212,255,0.15); border-radius: 20px;
+padding: 16px 20px; text-align: center; position: relative;
+display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
+flex-shrink: 0;
+box-shadow: 0 6px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+transition: border-color 0.4s, box-shadow 0.4s;
+}
+.word-display.speaking-en { border-color: rgba(0,212,255,0.55); box-shadow: var(--glow), 0 6px 28px rgba(0,0,0,0.4); }
+.word-display.speaking-cs { border-color: rgba(255,107,53,0.55); box-shadow: 0 0 28px rgba(255,107,53,0.3), 0 6px 28px rgba(0,0,0,0.4); }
+
+.timer-ring { position: absolute; top: 9px; right: 11px; }
+.timer-ring svg { transform: rotate(-90deg); }
+.timer-ring circle { fill: none; stroke-width: 3; stroke-linecap: round; transition: stroke-dashoffset 0.1s linear; }
+.timer-bg { stroke: rgba(255,255,255,0.07); stroke-dasharray: 94.2; stroke-dashoffset: 0; }
+.timer-fg { stroke: var(--accent); stroke-dasharray: 94.2; stroke-dashoffset: 94.2; }
+
+.lang-label { font-family: ‘Rajdhani’, sans-serif; font-size: 0.72rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+.lang-label.en { color: var(--accent); }
+.lang-label.cs { color: var(--accent2); }
+.word-en { font-family: ‘Rajdhani’, sans-serif; font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; color: var(--text); line-height: 1.1; }
+.word-cs { font-family: ‘Rajdhani’, sans-serif; font-size: 1.7rem; font-weight: 600; color: var(--accent); opacity: 0; transition: opacity 0.5s; min-height: 1.9rem; }
+.word-cs.visible { opacity: 1; }
+.divider { width: 46px; height: 2px; background: linear-gradient(90deg, transparent, var(--muted), transparent); opacity: 0.35; }
+
+.status-bar { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; min-height: 18px; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: all 0.3s; flex-shrink: 0; }
+.status-dot.playing { background: var(--success); box-shadow: 0 0 8px var(--success); animation: pulse 1.5s ease-in-out infinite; }
+.status-dot.paused  { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.big-controls { display: flex; flex-direction: column; gap: 7px; flex-shrink: 0; }
+.btn-big {
+width: 100%; height: 56px; border: none; border-radius: 15px;
+font-family: ‘Rajdhani’, sans-serif; font-size: 1.45rem; font-weight: 700;
+letter-spacing: 4px; text-transform: uppercase; cursor: pointer;
+transition: transform 0.1s, filter 0.1s; position: relative; overflow: hidden;
+}
+.btn-big::after { content: ‘’; position: absolute; inset: 0; background: white; opacity: 0; transition: opacity 0.1s; }
+.btn-big:active { transform: scale(0.97); }
+.btn-big:active::after { opacity: 0.12; }
+.btn-stop     { background: linear-gradient(135deg, #ff2244, #bb0011); color: #fff; box-shadow: 0 5px 22px rgba(255,34,68,0.4); }
+.btn-stop:hover { filter: brightness(1.1); }
+.btn-continue { background: linear-gradient(135deg, #00cc66, #007733); color: #fff; box-shadow: 0 5px 22px rgba(0,204,102,0.4); }
+.btn-continue:hover { filter: brightness(1.1); }
+.btn-pause    { background: linear-gradient(135deg, #ffaa00, #cc7700); color: #fff; box-shadow: 0 5px 22px rgba(255,170,0,0.4); }
+.btn-pause:hover { filter: brightness(1.1); }
+.btn-back     { background: linear-gradient(135deg, #6677cc, #334499); color: #fff; box-shadow: 0 5px 22px rgba(102,119,204,0.4); }
+.btn-back:hover { filter: brightness(1.1); }
+
+.editor-toggle {
+background: var(--surface2); border: 1px solid rgba(255,255,255,0.08); border-radius: 11px;
+padding: 9px 14px; display: flex; align-items: center; justify-content: space-between;
+cursor: pointer; flex-shrink: 0;
+font-family: ‘Rajdhani’, sans-serif; font-size: 0.82rem; letter-spacing: 2px;
+text-transform: uppercase; color: var(--muted); transition: border-color 0.2s;
+}
+.editor-toggle:hover { border-color: rgba(0,212,255,0.3); color: var(--text); }
+.arrow { transition: transform 0.3s; display: inline-block; }
+.editor-toggle.open .arrow { transform: rotate(180deg); }
+.editor-body { display: none; background: var(--surface); border: 1px solid rgba(255,255,255,0.07); border-radius: 13px; padding: 12px 14px; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.editor-body.open { display: flex; }
+.editor-body textarea { width: 100%; background: var(--surface2); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; color: var(--text); font-family: ‘Nunito’, monospace; font-size: 0.8rem; padding: 9px; resize: vertical; min-height: 80px; max-height: 130px; outline: none; transition: border-color 0.2s; }
+.editor-body textarea:focus { border-color: rgba(0,212,255,0.4); }
+.editor-hint { font-size: 0.7rem; color: var(--muted); }
+.btn-load { align-self: flex-start; background: linear-gradient(135deg, var(--accent), #0099cc); color: #000; border: none; border-radius: 9px; padding: 8px 16px; font-family: ‘Rajdhani’, sans-serif; font-size: 0.9rem; font-weight: 700; letter-spacing: 1.5px; cursor: pointer; transition: filter 0.2s; }
+.btn-load:hover { filter: brightness(1.1); }
+
+/* Hlasové ovládání */
+.voice-bar {
+display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+background: var(--surface2); border: 1px solid rgba(255,255,255,0.08);
+border-radius: 13px; padding: 9px 14px;
+transition: border-color 0.3s;
+}
+.voice-bar.listening { border-color: rgba(0,212,255,0.5); }
+.voice-bar.heard     { border-color: rgba(0,229,160,0.7); }
+.voice-bar.error     { border-color: rgba(255,34,68,0.5); }
+.btn-mic {
+width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; flex-shrink: 0;
+background: linear-gradient(135deg, #334, #223); color: var(--muted);
+font-size: 1.1rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+}
+.btn-mic.active { background: linear-gradient(135deg, var(--accent), #0099cc); color: #000; box-shadow: 0 0 14px rgba(0,212,255,0.5); }
+.btn-mic.heard  { background: linear-gradient(135deg, var(--success), #009955); color: #000; }
+.voice-info { flex: 1; min-width: 0; }
+.voice-label { font-family: ‘Rajdhani’, sans-serif; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.voice-result { font-family: ‘Rajdhani’, sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 1.2em; }
+.voice-waves { display: flex; align-items: center; gap: 2px; height: 18px; }
+.voice-waves span {
+display: block; width: 3px; border-radius: 2px; background: var(--accent);
+animation: wave 0.9s ease-in-out infinite;
+}
+.voice-waves span:nth-child(1) { animation-delay: 0s;    height: 6px; }
+.voice-waves span:nth-child(2) { animation-delay: 0.15s; height: 12px; }
+.voice-waves span:nth-child(3) { animation-delay: 0.3s;  height: 18px; }
+.voice-waves span:nth-child(4) { animation-delay: 0.15s; height: 12px; }
+.voice-waves span:nth-child(5) { animation-delay: 0s;    height: 6px; }
+@keyframes wave { 0%,100%{transform:scaleY(0.4)} 50%{transform:scaleY(1)} }
+.voice-waves.hidden { display: none; }
+
+/* Donate */
+.btn-donate {
+  width: 100%; height: 44px; border: 1px solid rgba(255,200,0,0.3); border-radius: 13px;
+  background: linear-gradient(135deg, rgba(255,180,0,0.12), rgba(255,120,0,0.08));
+  color: #ffffff; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase; cursor: pointer; flex-shrink: 0;
+  transition: border-color 0.2s, background 0.2s;
+}
+.btn-donate:hover { border-color: rgba(255,200,0,0.6); background: linear-gradient(135deg, rgba(255,180,0,0.22), rgba(255,120,0,0.14)); }
+
+/* Donate modal */
+.donate-overlay {
+  display: none; position: fixed; inset: 0; z-index: 999;
+  background: rgba(0,0,0,0.82); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+.donate-overlay.open { display: flex; }
+.donate-box {
+  background: var(--surface); border: 1px solid rgba(255,200,0,0.25); border-radius: 22px;
+  padding: 24px 24px 20px; text-align: center; max-width: 300px; width: 90%;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.6);
+}
+.donate-title {
+  font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700;
+  letter-spacing: 3px; color: #ffc800; margin-bottom: 16px;
+}
+.donate-box img { width: 220px; height: 220px; border-radius: 12px; display: block; margin: 0 auto; }
+.donate-close {
+  margin-top: 16px; background: none; border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 9px; color: var(--muted); font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem; letter-spacing: 2px; padding: 7px 20px; cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.donate-close:hover { border-color: rgba(255,255,255,0.4); color: var(--text); }
+
+/* Contact */
+.btn-contact {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 38px; border: 1px solid rgba(255,255,255,0.08); border-radius: 13px;
+  background: transparent; text-decoration: none; flex-shrink: 0;
+  transition: border-color 0.25s;
+}
+.btn-contact:hover { border-color: rgba(0,212,255,0.35); }
+.btn-contact-label {
+  font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase; color: var(--muted);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.btn-contact-email {
+  position: absolute; font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; font-weight: 600;
+  letter-spacing: 1px; color: var(--accent);
+  opacity: 0; transform: translateY(6px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.btn-contact:hover .btn-contact-label { opacity: 0; transform: translateY(-6px); }
+.btn-contact:hover .btn-contact-email  { opacity: 1; transform: translateY(0); }
+</style>
+
+</head>
+<body>
+<div class="road-lines"></div>
+<div class="app">
+  <div class="header">
+    <div class="logo">Driv<span>English</span></div>
+    <div class="progress-info">Word <b id="currentIdx">—</b> / <b id="totalCount">—</b></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="word-display" id="wordDisplay">
+    <div class="timer-ring">
+      <svg width="32" height="32" viewBox="0 0 34 34">
+        <circle class="timer-bg" cx="17" cy="17" r="15"/>
+        <circle class="timer-fg" id="timerArc" cx="17" cy="17" r="15"/>
+      </svg>
+    </div>
+    <span class="lang-label en">ENGLISH</span>
+    <div class="word-en" id="wordEn">— — —</div>
+    <div class="divider"></div>
+    <div class="word-cs" id="wordCs">— — —</div>
+    <span class="lang-label cs" id="langCs" style="opacity:0">CZECH</span>
+  </div>
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Press CONTINUE to start</span>
+  </div>
+  <div class="big-controls">
+    <button class="btn-big btn-stop"     onclick="stopPlayback()">⏹ STOP</button>
+    <button class="btn-big btn-continue" id="playBtn" onclick="togglePlay()">▶ CONTINUE</button>
+    <button class="btn-big btn-pause"    onclick="pausePlayback()">⏸ PAUSE</button>
+    <button class="btn-big btn-back"     onclick="prevWord()">◀ BACK</button>
+  </div>
+  <!-- Hlasové ovládání -->
+  <div class="voice-bar" id="voiceBar">
+    <button class="btn-mic" id="btnMic" onclick="toggleVoice()" title="Enable / disable voice control">🎤</button>
+    <div class="voice-info">
+      <div class="voice-label">VOICE CONTROL</div>
+      <div class="voice-result" id="voiceResult">Press 🎤 to activate</div>
+    </div>
+    <div class="voice-waves hidden" id="voiceWaves">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div class="editor-toggle" id="editorToggle" onclick="toggleEditor()">
+    <span>📝 My Words</span>
+    <span class="arrow">▼</span>
+  </div>
+  <div class="editor-body" id="editorBody">
+    <textarea id="wordListInput"></textarea>
+    <div class="editor-hint">Format: english = czech &nbsp;|&nbsp; one word per line</div>
+    <button class="btn-load" onclick="loadWords()">✅ Load Words</button>
+  </div>
+  <button class="btn-donate" onclick="openDonate()">☕ Donate</button>
+  <a class="btn-contact" href="mailto:sw@marekudlacek.cz">
+    <span class="btn-contact-label">✉ Contact</span>
+    <span class="btn-contact-email">sw@marekudlacek.cz</span>
+  </a>
+</div>
+
+<!-- Donate modal -->
+<div class="donate-overlay" id="donateOverlay" onclick="closeDonate()">
+  <div class="donate-box" onclick="event.stopPropagation()">
+    <div class="donate-title">☕ Support the project</div>
+    <img src="images/donate_qr.png" alt="Donate QR code">
+    <button class="donate-close" onclick="closeDonate()">✕ CLOSE</button>
+  </div>
+</div>
+
+<script>
+const defaultWords = [
+  { en: "abolish",         cs: "zrušit / odstranit" },
+  { en: "abundant",        cs: "hojný / bohatý" },
+  { en: "acknowledge",     cs: "uznat / přiznat" },
+  { en: "acquire",         cs: "získat / nabýt" },
+  { en: "adequate",        cs: "přiměřený / dostačující" },
+  { en: "aggressive",      cs: "agresivní / útočný" },
+  { en: "allocate",        cs: "přidělit / rozdělit" },
+  { en: "ambitious",       cs: "ambiciózní / ctižádostivý" },
+  { en: "anxious",         cs: "úzkostlivý / znepokojený" },
+  { en: "approach",        cs: "přístup / přiblížit se" },
+  { en: "approximately",   cs: "přibližně / zhruba" },
+  { en: "assume",          cs: "předpokládat / převzít" },
+  { en: "attitude",        cs: "postoj / přístup" },
+  { en: "available",       cs: "dostupný / volný" },
+  { en: "aware",           cs: "vědomý / informovaný" },
+  { en: "behave",          cs: "chovat se / jednat" },
+  { en: "benefit",         cs: "výhoda / prospívat" },
+  { en: "breakthrough",    cs: "průlom / objev" },
+  { en: "capable",         cs: "schopný / způsobilý" },
+  { en: "circumstances",   cs: "okolnosti / podmínky" },
+  { en: "commit",          cs: "zavázat se / spáchat" },
+  { en: "communicate",     cs: "komunikovat / sdělovat" },
+  { en: "community",       cs: "komunita / společenství" },
+  { en: "compete",         cs: "soutěžit / soupeřit" },
+  { en: "concern",         cs: "znepokojení / týkat se" },
+  { en: "confident",       cs: "sebejistý / přesvědčený" },
+  { en: "consequence",     cs: "důsledek / následek" },
+  { en: "consider",        cs: "zvážit / považovat za" },
+  { en: "consistent",      cs: "důsledný / konzistentní" },
+  { en: "contribute",      cs: "přispívat / podílet se" },
+  { en: "convince",        cs: "přesvědčit / přesvědčovat" },
+  { en: "cope with",       cs: "vyrovnat se / zvládat" },
+  { en: "currently",       cs: "v současnosti / nyní" },
+  { en: "deal with",       cs: "řešit / zabývat se" },
+  { en: "decline",         cs: "pokles / odmítnout" },
+  { en: "demand",          cs: "požadavek / vyžadovat" },
+  { en: "depressed",       cs: "deprimovaný / sklíčený" },
+  { en: "determined",      cs: "odhodlaný / rozhodný" },
+  { en: "diversity",       cs: "rozmanitost / různorodost" },
+  { en: "effective",       cs: "účinný / efektivní" },
+  { en: "efficient",       cs: "výkonný / hospodárný" },
+  { en: "embarrassed",     cs: "trapně / v rozpacích" },
+  { en: "employ",          cs: "zaměstnat / využít" },
+  { en: "encourage",       cs: "povzbudit / podpořit" },
+  { en: "enormous",        cs: "obrovský / nesmírný" },
+  { en: "environment",     cs: "prostředí / životní prostředí" },
+  { en: "establish",       cs: "zřídit / prokázat" },
+  { en: "evidence",        cs: "důkaz / svědectví" },
+  { en: "exhausted",       cs: "vyčerpaný / unavený" },
+  { en: "expand",          cs: "rozšířit / rozrůstat se" },
+  { en: "explore",         cs: "zkoumat / prozkoumat" },
+  { en: "failure",         cs: "neúspěch / selhání" },
+  { en: "flexible",        cs: "flexibilní / přizpůsobivý" },
+  { en: "focus on",        cs: "soustředit se na" },
+  { en: "fortunately",     cs: "naštěstí / šťastně" },
+  { en: "frustrated",      cs: "frustrovaný / zklamaný" },
+  { en: "global",          cs: "globální / světový" },
+  { en: "gradually",       cs: "postupně / pomalu" },
+  { en: "grateful",        cs: "vděčný / povděčný" },
+  { en: "honest",          cs: "čestný / upřímný" },
+  { en: "identify",        cs: "identifikovat / rozpoznat" },
+  { en: "ignore",          cs: "ignorovat / přehlížet" },
+  { en: "impact",          cs: "dopad / vliv" },
+  { en: "improve",         cs: "zlepšit / zdokonalit" },
+  { en: "income",          cs: "příjem / výdělek" },
+  { en: "increase",        cs: "zvýšit / nárůst" },
+  { en: "independent",     cs: "nezávislý / samostatný" },
+  { en: "influence",       cs: "vliv / ovlivňovat" },
+  { en: "injure",          cs: "zranit / poškodit" },
+  { en: "insist",          cs: "trvat na / naléhat" },
+  { en: "intend",          cs: "zamýšlet / plánovat" },
+  { en: "issue",           cs: "problém / téma" },
+  { en: "lack",            cs: "nedostatek / postrádat" },
+  { en: "maintain",        cs: "udržovat / tvrdit" },
+  { en: "manage to",       cs: "podařit se / zvládnout" },
+  { en: "meanwhile",       cs: "mezitím / zatímco" },
+  { en: "mention",         cs: "zmínit / uvést" },
+  { en: "minority",        cs: "menšina / méně" },
+  { en: "moreover",        cs: "navíc / kromě toho" },
+  { en: "motivated",       cs: "motivovaný / nadšený" },
+  { en: "nowadays",        cs: "v dnešní době / dnes" },
+  { en: "obvious",         cs: "zřejmý / samozřejmý" },
+  { en: "overcome",        cs: "překonat / zvítězit" },
+  { en: "participate",     cs: "účastnit se / zapojit se" },
+  { en: "persuade",        cs: "přesvědčit / přimět" },
+  { en: "prevent",         cs: "zabránit / předcházet" },
+  { en: "provide",         cs: "poskytnout / zajistit" },
+  { en: "raise awareness", cs: "zvyšovat povědomí" },
+  { en: "reasonable",      cs: "rozumný / přiměřený" },
+  { en: "reduce",          cs: "snížit / omezit" },
+  { en: "reflect on",      cs: "přemýšlet o / zamyslet se" },
+  { en: "rely on",         cs: "spoléhat se na / záviset na" },
+  { en: "responsible",     cs: "zodpovědný / odpovědný" },
+  { en: "significant",     cs: "významný / podstatný" },
+  { en: "solution",        cs: "řešení / odpověď" },
+  { en: "struggle",        cs: "boj / bojovat" },
+  { en: "support",         cs: "podpora / podporovat" },
+  { en: "tend to",         cs: "mít tendenci / zpravidla" },
+  { en: "therefore",       cs: "proto / tudíž" },
+  { en: "throughout",      cs: "po celou dobu / všude" },
+  { en: "valuable",        cs: "cenný / hodnotný" },
+  { en: "whereas",         cs: "zatímco / kdežto" },
+  { en: "willing",         cs: "ochotný / svolný" },
+];
+
+let words         = [...defaultWords];
+let currentIndex  = 0;
+let isPlaying     = false;
+let playTimer     = null;
+let timerInterval = null;
+let playGen       = 0;
+
+document.getElementById('wordListInput').value =
+  "// My words — format: english = czech\n\nadvocate = obhájce / prosazovat\nbreakthrough = průlom / objev\ncatalyst = katalyzátor / spouštěč";
+
+function speak(text, lang) {
+  return new Promise(resolve => {
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = lang; utt.rate = 0.88; utt.pitch = 1;
+    const voices = window.speechSynthesis.getVoices();
+    const voice = voices.find(v => v.lang.startsWith(lang.split('-')[0]) && !v.name.includes('Google'))
+               || voices.find(v => v.lang.startsWith(lang.split('-')[0]));
+    if (voice) utt.voice = voice;
+    utt.onend = resolve; utt.onerror = resolve;
+    window.speechSynthesis.speak(utt);
+  });
+}
+
+function setStatus(state, text) {
+  document.getElementById('statusDot').className = 'status-dot ' + state;
+  document.getElementById('statusText').textContent = text;
+}
+
+function updateCard(idx, showCs) {
+  const w = words[idx];
+  document.getElementById('wordEn').textContent = w.en.toUpperCase();
+  const csEl  = document.getElementById('wordCs');
+  const csLbl = document.getElementById('langCs');
+  csEl.textContent = w.cs;
+  csEl.classList.toggle('visible', showCs);
+  csLbl.style.opacity = showCs ? '1' : '0';
+  document.getElementById('currentIdx').textContent = idx + 1;
+  document.getElementById('totalCount').textContent = words.length;
+  document.getElementById('progressFill').style.width = ((idx + 1) / words.length * 100) + '%';
+}
+
+function setCardMode(mode) {
+  document.getElementById('wordDisplay').className = 'word-display ' + (mode || '');
+}
+
+function startTimerArc(seconds) {
+  const arc = document.getElementById('timerArc');
+  let elapsed = 0;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    elapsed += 50;
+    const frac = Math.min(elapsed / (seconds * 1000), 1);
+    arc.style.strokeDashoffset = 94.2 * (1 - frac);
+    if (frac >= 1) clearInterval(timerInterval);
+  }, 50);
+}
+
+async function playWord(idx) {
+  const gen = ++playGen;
+  if (idx >= words.length) {
+    setStatus('', 'Done! 🎉 Press STOP or BACK.');
+    document.getElementById('playBtn').textContent = '▶ CONTINUE';
+    isPlaying = false;
+    return;
+  }
+  currentIndex = idx;
+  updateCard(idx, false);
+  setCardMode('speaking-en');
+  setStatus('playing', words[idx].en);
+  document.getElementById('playBtn').textContent = '⏭ NEXT';
+
+  await speak(words[idx].en, 'en-GB');
+  if (!isPlaying || playGen !== gen) return;
+
+  setCardMode('');
+  setStatus('playing', '— 3s —');
+  startTimerArc(3);
+  await delay(3000);
+  if (!isPlaying || playGen !== gen) return;
+
+  updateCard(idx, true);
+  setCardMode('speaking-cs');
+  setStatus('playing', words[idx].cs);
+  await speak(words[idx].cs, 'cs-CZ');
+  if (!isPlaying || playGen !== gen) return;
+
+  await delay(1000);
+  if (!isPlaying || playGen !== gen) return;
+
+  playWord(idx + 1);
+}
+
+function delay(ms) {
+  return new Promise(resolve => { playTimer = setTimeout(resolve, ms); });
+}
+
+function togglePlay() {
+  if (isPlaying) {
+    isPlaying = false;
+    clearTimeout(playTimer);
+    clearInterval(timerInterval);
+    window.speechSynthesis.cancel();
+    currentIndex = Math.min(currentIndex + 1, words.length - 1);
+    isPlaying = true;
+    playWord(currentIndex);
+  } else {
+    resumePlayback();
+  }
+}
+
+function pausePlayback() {
+  isPlaying = false;
+  clearTimeout(playTimer);
+  clearInterval(timerInterval);
+  window.speechSynthesis.cancel();
+  setCardMode('');
+  setStatus('paused', 'Paused');
+  document.getElementById('playBtn').textContent = '▶ CONTINUE';
+}
+
+function stopPlayback() {
+  isPlaying = false;
+  clearTimeout(playTimer);
+  clearInterval(timerInterval);
+  window.speechSynthesis.cancel();
+  setCardMode('');
+  shuffle(words);
+  currentIndex = 0;
+  updateCard(0, false);
+  setStatus('', 'Stopped — words shuffled. Press CONTINUE to restart.');
+  document.getElementById('playBtn').textContent = '▶ CONTINUE';
+}
+
+function resumePlayback() {
+  isPlaying = true;
+  playWord(currentIndex);
+}
+
+function prevWord() {
+  const was = isPlaying;
+  if (isPlaying) {
+    isPlaying = false;
+    clearTimeout(playTimer);
+    clearInterval(timerInterval);
+    window.speechSynthesis.cancel();
+  }
+  currentIndex = Math.max(0, currentIndex - 1);
+  updateCard(currentIndex, false);
+  if (was) { isPlaying = true; playWord(currentIndex); }
+  else setStatus('paused', 'Moved back');
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function toggleEditor() {
+  document.getElementById('editorToggle').classList.toggle('open');
+  document.getElementById('editorBody').classList.toggle('open');
+}
+
+function loadWords() {
+  const parsed = document.getElementById('wordListInput').value.trim()
+    .split('\n').filter(l => l.includes('=') && !l.trim().startsWith('//'))
+    .map(l => { const [en, ...r] = l.split('='); return { en: en.trim(), cs: r.join('=').trim() }; })
+    .filter(w => w.en && w.cs);
+  if (!parsed.length) { alert('No words found. Format: english = czech'); return; }
+  words = shuffle(parsed);
+  currentIndex = 0; isPlaying = false;
+  clearTimeout(playTimer); window.speechSynthesis.cancel();
+  updateCard(0, false);
+  setStatus('', `Loaded ${words.length} words — press CONTINUE`);
+  document.getElementById('playBtn').textContent = '▶ CONTINUE';
+  document.getElementById('editorToggle').classList.remove('open');
+  document.getElementById('editorBody').classList.remove('open');
+}
+
+window.speechSynthesis.onvoiceschanged = () => {};
+shuffle(words);
+updateCard(0, false);
+
+// localStorage pro vlastní slovíčka
+const LS_KEY = 'driveenglish_custom';
+function saveWordsToStorage() {
+  const val = document.getElementById('wordListInput').value;
+  try { localStorage.setItem(LS_KEY, val); } catch(_) {}
+}
+function loadWordsFromStorage() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) document.getElementById('wordListInput').value = saved;
+  } catch(_) {}
+}
+loadWordsFromStorage();
+document.getElementById('wordListInput').addEventListener('input', saveWordsToStorage);
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA') return;
+  if (e.key === ' ')         { e.preventDefault(); togglePlay(); }
+  if (e.key === 'ArrowLeft') prevWord();
+  if (e.key === 'Escape')    stopPlayback();
+});
+
+/* ───── HLASOVÉ OVLÁDÁNÍ ───── */
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition    = null;
+let voiceActive    = false;
+let voiceRestart   = false;   // příznak pro auto-restart po konci utterance
+
+// Příkazy: klíčová slova → akce (czech + english variants)
+const VOICE_COMMANDS = [
+  { words: ['stop','zastavit','zastav','konec'], action: () => stopPlayback(),   label: 'STOP' },
+  { words: ['start','continue','pokračuj','pokračovat','spustit','hraj','resume'], action: () => { if (!isPlaying) resumePlayback(); }, label: 'START' },
+  { words: ['pause','pauza','pozastavit','pozastav','počkej'], action: () => pausePlayback(), label: 'PAUSE' },
+  { words: ['next','další','přeskočit','skip'], action: () => togglePlay(),                   label: 'NEXT' },
+  { words: ['back','zpět','předchozí','předchozi','zpet'], action: () => prevWord(),          label: 'BACK' },
+];
+
+function voiceSetUI(state, text) {
+  const bar    = document.getElementById('voiceBar');
+  const mic    = document.getElementById('btnMic');
+  const result = document.getElementById('voiceResult');
+  const waves  = document.getElementById('voiceWaves');
+  bar.className    = 'voice-bar ' + (state || '');
+  mic.className    = 'btn-mic '   + (state === 'listening' ? 'active' : state === 'heard' ? 'heard' : '');
+  result.textContent = text;
+  waves.className  = 'voice-waves ' + (state === 'listening' ? '' : 'hidden');
+}
+
+function initRecognition() {
+  if (!SpeechRec) return null;
+  const r = new SpeechRec();
+  r.lang            = 'cs-CZ';   // primárně čeština — anglická slova jsou dost srozumitelná i tak
+  r.continuous      = false;      // Safari vyžaduje false; ručně restartujeme
+  r.interimResults  = false;
+  r.maxAlternatives = 5;
+
+  r.onstart = () => {
+    voiceSetUI('listening', 'Listening…');
+  };
+
+  r.onresult = (e) => {
+    const candidates = [];
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      for (let a = 0; a < e.results[i].length; a++) {
+        candidates.push(e.results[i][a].transcript.trim().toLowerCase());
+      }
+    }
+    const heard = candidates.join(' | ');
+    let matched = false;
+    for (const cmd of VOICE_COMMANDS) {
+      if (candidates.some(c => cmd.words.some(w => c.includes(w)))) {
+        voiceSetUI('heard', '✓ ' + cmd.label);
+        cmd.action();
+        matched = true;
+        setTimeout(() => { if (voiceActive) voiceSetUI('listening', 'Listening…'); }, 1200);
+        break;
+      }
+    }
+    if (!matched) {
+      voiceSetUI('listening', '? ' + (candidates[0] || '…'));
+    }
+  };
+
+  r.onerror = (e) => {
+    // 'no-speech' je normální — tiše restartujeme
+    if (e.error === 'no-speech') return;
+    if (e.error === 'not-allowed') {
+      voiceActive = false;
+      voiceSetUI('error', 'Microphone denied');
+      return;
+    }
+    voiceSetUI('error', 'Error: ' + e.error);
+  };
+
+  r.onend = () => {
+    // auto-restart pokud je hlas stále aktivní
+    if (voiceActive && voiceRestart) {
+      try { recognition.start(); } catch(_) {}
+    }
+  };
+
+  return r;
+}
+
+function toggleVoice() {
+  if (!SpeechRec) {
+    voiceSetUI('error', 'Speech recognition not supported');
+    return;
+  }
+  if (voiceActive) {
+    // vypnout
+    voiceActive  = false;
+    voiceRestart = false;
+    try { recognition.stop(); } catch(_) {}
+    voiceSetUI('', 'Voice control off');
+    document.getElementById('btnMic').textContent = '🎤';
+  } else {
+    voiceActive  = true;
+    voiceRestart = true;
+    recognition  = initRecognition();
+    try { recognition.start(); } catch(_) {}
+    document.getElementById('btnMic').textContent = '🔴';
+  }
+}
+
+function toggleVoiceNotSupported() {
+  voiceSetUI('error', 'Speech recognition not supported');
+}
+
+function openDonate() {
+  document.getElementById('donateOverlay').classList.add('open');
+}
+function closeDonate() {
+  document.getElementById('donateOverlay').classList.remove('open');
+}
+
+</script>
+
+</body>
+</html>
