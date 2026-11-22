@@ -38,9 +38,9 @@
 .app { position: relative; z-index: 1; min-height: 100vh; max-width: 580px; margin: 0 auto; padding: 12px 16px 40px; display: flex; flex-direction: column; gap: 8px; }
 
 .header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-.logo { font-family: ‘Rajdhani’, sans-serif; font-size: 1.35rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-shadow: var(--glow); }
+.logo { font-family: 'Rajdhani', sans-serif; font-size: 1.35rem; font-weight: 700; letter-spacing: 2px; color: var(--accent); text-shadow: var(--glow); }
 .logo span { color: #ffffff; }
-.progress-info { font-family: ‘Rajdhani’, sans-serif; font-size: 1rem; color: var(--muted); }
+.progress-info { font-family: 'Rajdhani', sans-serif; font-size: 1rem; color: var(--muted); }
 .progress-info b { color: var(--text); }
 
 .progress-bar { height: 3px; flex-shrink: 0; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
@@ -63,11 +63,11 @@ transition: border-color 0.4s, box-shadow 0.4s;
 .timer-bg { stroke: rgba(255,255,255,0.07); stroke-dasharray: 94.2; stroke-dashoffset: 0; }
 .timer-fg { stroke: var(--accent); stroke-dasharray: 94.2; stroke-dashoffset: 94.2; }
 
-.lang-label { font-family: ‘Rajdhani’, sans-serif; font-size: 0.72rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+.lang-label { font-family: 'Rajdhani', sans-serif; font-size: 0.72rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
 .lang-label.en { color: var(--accent); }
 .lang-label.cs { color: var(--accent2); }
-.word-en { font-family: ‘Rajdhani’, sans-serif; font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; color: var(--text); line-height: 1.1; }
-.word-cs { font-family: ‘Rajdhani’, sans-serif; font-size: 1.7rem; font-weight: 600; color: var(--accent); opacity: 0; transition: opacity 0.5s; min-height: 1.9rem; }
+.word-en { font-family: 'Rajdhani', sans-serif; font-size: 2.2rem; font-weight: 700; letter-spacing: 1px; color: var(--text); line-height: 1.1; }
+.word-cs { font-family: 'Rajdhani', sans-serif; font-size: 1.7rem; font-weight: 600; color: var(--accent); opacity: 0; transition: opacity 0.5s; min-height: 1.9rem; }
 .word-cs.visible { opacity: 1; }
 .divider { width: 46px; height: 2px; background: linear-gradient(90deg, transparent, var(--muted), transparent); opacity: 0.35; }
 
@@ -80,11 +80,11 @@ transition: border-color 0.4s, box-shadow 0.4s;
 .big-controls { display: flex; flex-direction: column; gap: 7px; flex-shrink: 0; }
 .btn-big {
 width: 100%; height: 56px; border: none; border-radius: 15px;
-font-family: ‘Rajdhani’, sans-serif; font-size: 1.45rem; font-weight: 700;
+font-family: 'Rajdhani', sans-serif; font-size: 1.45rem; font-weight: 700;
 letter-spacing: 4px; text-transform: uppercase; cursor: pointer;
 transition: transform 0.1s, filter 0.1s; position: relative; overflow: hidden;
 }
-.btn-big::after { content: ‘’; position: absolute; inset: 0; background: white; opacity: 0; transition: opacity 0.1s; }
+.btn-big::after { content: ''; position: absolute; inset: 0; background: white; opacity: 0; transition: opacity 0.1s; }
 .btn-big:active { transform: scale(0.97); }
 .btn-big:active::after { opacity: 0.12; }
 .btn-stop     { background: linear-gradient(135deg, #ff2244, #bb0011); color: #fff; box-shadow: 0 5px 22px rgba(255,34,68,0.4); }
@@ -100,7 +100,7 @@ transition: transform 0.1s, filter 0.1s; position: relative; overflow: hidden;
 background: var(--surface2); border: 1px solid rgba(255,255,255,0.08); border-radius: 11px;
 padding: 9px 14px; display: flex; align-items: center; justify-content: space-between;
 cursor: pointer; flex-shrink: 0;
-font-family: ‘Rajdhani’, sans-serif; font-size: 0.82rem; letter-spacing: 2px;
+font-family: 'Rajdhani', sans-serif; font-size: 0.82rem; letter-spacing: 2px;
 text-transform: uppercase; color: var(--muted); transition: border-color 0.2s;
 }
 .editor-toggle:hover { border-color: rgba(0,212,255,0.3); color: var(--text); }
@@ -108,10 +108,10 @@ text-transform: uppercase; color: var(--muted); transition: border-color 0.2s;
 .editor-toggle.open .arrow { transform: rotate(180deg); }
 .editor-body { display: none; background: var(--surface); border: 1px solid rgba(255,255,255,0.07); border-radius: 13px; padding: 12px 14px; flex-direction: column; gap: 8px; flex-shrink: 0; }
 .editor-body.open { display: flex; }
-.editor-body textarea { width: 100%; background: var(--surface2); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; color: var(--text); font-family: ‘Nunito’, monospace; font-size: 0.8rem; padding: 9px; resize: vertical; min-height: 80px; max-height: 130px; outline: none; transition: border-color 0.2s; }
+.editor-body textarea { width: 100%; background: var(--surface2); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; color: var(--text); font-family: 'Nunito', monospace; font-size: 0.8rem; padding: 9px; resize: vertical; min-height: 80px; max-height: 130px; outline: none; transition: border-color 0.2s; }
 .editor-body textarea:focus { border-color: rgba(0,212,255,0.4); }
 .editor-hint { font-size: 0.7rem; color: var(--muted); }
-.btn-load { align-self: flex-start; background: linear-gradient(135deg, var(--accent), #0099cc); color: #000; border: none; border-radius: 9px; padding: 8px 16px; font-family: ‘Rajdhani’, sans-serif; font-size: 0.9rem; font-weight: 700; letter-spacing: 1.5px; cursor: pointer; transition: filter 0.2s; }
+.btn-load { align-self: flex-start; background: linear-gradient(135deg, var(--accent), #0099cc); color: #000; border: none; border-radius: 9px; padding: 8px 16px; font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; font-weight: 700; letter-spacing: 1.5px; cursor: pointer; transition: filter 0.2s; }
 .btn-load:hover { filter: brightness(1.1); }
 
 /* Hlasové ovládání */
@@ -132,8 +132,8 @@ font-size: 1.1rem; transition: all 0.2s; display: flex; align-items: center; jus
 .btn-mic.active { background: linear-gradient(135deg, var(--accent), #0099cc); color: #000; box-shadow: 0 0 14px rgba(0,212,255,0.5); }
 .btn-mic.heard  { background: linear-gradient(135deg, var(--success), #009955); color: #000; }
 .voice-info { flex: 1; min-width: 0; }
-.voice-label { font-family: ‘Rajdhani’, sans-serif; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
-.voice-result { font-family: ‘Rajdhani’, sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 1.2em; }
+.voice-label { font-family: 'Rajdhani', sans-serif; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.voice-result { font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 1.2em; }
 .voice-waves { display: flex; align-items: center; gap: 2px; height: 18px; }
 .voice-waves span {
 display: block; width: 3px; border-radius: 2px; background: var(--accent);
@@ -204,6 +204,52 @@ animation: wave 0.9s ease-in-out infinite;
 }
 .btn-contact:hover .btn-contact-label { opacity: 0; transform: translateY(-6px); }
 .btn-contact:hover .btn-contact-email  { opacity: 1; transform: translateY(0); }
+
+/* Popis slovíčka na kartě */
+.word-desc { font-size: 0.85rem; color: var(--muted); max-width: 100%; opacity: 0; transition: opacity 0.5s; min-height: 0; overflow-wrap: anywhere; }
+.word-desc.visible { opacity: 1; }
+.word-desc:empty { display: none; }
+
+/* Trial banner */
+.trial-banner { display: none; font-size: 0.75rem; color: var(--muted); text-align: center; border: 1px dashed rgba(255,200,0,0.3); border-radius: 9px; padding: 5px 10px; }
+.trial-banner.show { display: block; }
+.trial-banner b { color: #ffc800; }
+
+/* Kategorie */
+.cat-panel { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+.cat-head { display: flex; align-items: center; justify-content: space-between; font-family: 'Rajdhani', sans-serif; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.cat-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid rgba(255,255,255,0.12); background: var(--surface2); color: var(--muted); border-radius: 999px; padding: 5px 12px; font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: all 0.15s; }
+.chip.on { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.08); }
+.chip small { opacity: 0.7; margin-left: 4px; }
+.btn-small { background: none; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: var(--muted); font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; padding: 4px 10px; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+.btn-small:hover { border-color: var(--accent); color: var(--accent); }
+.btn-small.danger:hover { border-color: #ff2244; color: #ff5566; }
+
+/* Editor slov */
+.ed-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ed-label { font-family: 'Rajdhani', sans-serif; font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.ed-input, .ed-select { flex: 1 1 140px; min-width: 0; background: var(--surface2); border: 1px solid rgba(255,255,255,0.08); border-radius: 9px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 0.85rem; padding: 7px 9px; outline: none; }
+.editor-body > .ed-input { flex: none; }
+.ed-input:focus, .ed-select:focus { border-color: rgba(0,212,255,0.4); }
+.word-list { list-style: none; max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.word-list li { display: flex; gap: 8px; align-items: flex-start; background: var(--surface2); border-radius: 8px; padding: 6px 8px; font-size: 0.82rem; }
+.word-list .wl-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.word-list .wl-en { font-weight: 700; }
+.word-list .wl-cs { color: var(--accent); }
+.word-list .wl-desc { color: var(--muted); font-size: 0.75rem; }
+.word-list .wl-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.ed-sep { height: 1px; background: rgba(255,255,255,0.07); margin: 4px 0; }
+
+/* Paywall */
+.paywall-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(5,8,16,0.94); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 16px; }
+.paywall-overlay.open { display: flex; }
+.paywall-box { background: var(--surface); border: 1px solid rgba(255,200,0,0.3); border-radius: 22px; padding: 26px 22px; max-width: 380px; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 12px; }
+.paywall-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; letter-spacing: 2px; color: #ffc800; }
+.paywall-box p { font-size: 0.9rem; color: var(--text); }
+.paywall-box .muted { color: var(--muted); font-size: 0.8rem; }
+.paywall-box img { width: 200px; height: 200px; border-radius: 12px; margin: 0 auto; display: block; }
+.paywall-box a { color: var(--accent); }
 </style>
 
 </head>
@@ -215,6 +261,7 @@ animation: wave 0.9s ease-in-out infinite;
     <div class="progress-info">Word <b id="currentIdx">—</b> / <b id="totalCount">—</b></div>
   </div>
   <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="trial-banner" id="trialBanner"></div>
   <div class="word-display" id="wordDisplay">
     <div class="timer-ring">
       <svg width="32" height="32" viewBox="0 0 34 34">
@@ -227,6 +274,7 @@ animation: wave 0.9s ease-in-out infinite;
     <div class="divider"></div>
     <div class="word-cs" id="wordCs">— — —</div>
     <span class="lang-label cs" id="langCs" style="opacity:0">CZECH</span>
+    <div class="word-desc" id="wordDesc"></div>
   </div>
   <div class="status-bar">
     <div class="status-dot" id="statusDot"></div>
@@ -250,14 +298,45 @@ animation: wave 0.9s ease-in-out infinite;
     </div>
   </div>
 
+  <div class="cat-panel">
+    <div class="cat-head"><span>Categories to play</span><span id="catSummary"></span></div>
+    <div class="cat-chips" id="catChips"><span class="editor-hint">Loading…</span></div>
+  </div>
+
   <div class="editor-toggle" id="editorToggle" onclick="toggleEditor()">
     <span>📝 My Words</span>
     <span class="arrow">▼</span>
   </div>
   <div class="editor-body" id="editorBody">
-    <textarea id="wordListInput"></textarea>
-    <div class="editor-hint">Format: english = czech &nbsp;|&nbsp; one word per line</div>
-    <button class="btn-load" onclick="loadWords()">✅ Load Words</button>
+    <div class="ed-label">Category</div>
+    <div class="ed-row">
+      <select class="ed-select" id="edCategory" onchange="renderWordList()"></select>
+      <button class="btn-small" onclick="addCategory()">＋ New</button>
+      <button class="btn-small" onclick="renameCategory()">Rename</button>
+      <button class="btn-small danger" onclick="deleteCategory()">Delete</button>
+    </div>
+
+    <div class="ed-sep"></div>
+    <div class="ed-label" id="edFormLabel">Add word</div>
+    <div class="ed-row">
+      <input class="ed-input" id="edEn" maxlength="200" placeholder="english">
+      <input class="ed-input" id="edCs" maxlength="200" placeholder="česky">
+    </div>
+    <input class="ed-input" id="edDesc" maxlength="1000" placeholder="popis / příklad věty (volitelné)">
+    <div class="ed-row">
+      <button class="btn-load" id="edSave" onclick="saveWord()">＋ Add word</button>
+      <button class="btn-small" id="edCancel" onclick="resetWordForm()" style="display:none">Cancel</button>
+    </div>
+
+    <div class="ed-sep"></div>
+    <div class="ed-label">Words in category <span id="edCount"></span></div>
+    <ul class="word-list" id="wordList"></ul>
+
+    <div class="ed-sep"></div>
+    <div class="ed-label">Bulk import</div>
+    <textarea id="wordListInput" placeholder="advocate = obhájce / prosazovat | popis (volitelný)&#10;catalyst = katalyzátor / spouštěč"></textarea>
+    <div class="editor-hint">Format: english = czech | description &nbsp;·&nbsp; one word per line &nbsp;·&nbsp; // comment</div>
+    <button class="btn-load" onclick="importWords()">⬆ Import to category</button>
   </div>
   <button class="btn-donate" onclick="openDonate()">☕ Donate</button>
   <a class="btn-contact" href="mailto:sw@marekudlacek.cz">
@@ -275,122 +354,26 @@ animation: wave 0.9s ease-in-out infinite;
   </div>
 </div>
 
-<script>
-const defaultWords = [
-  { en: "abolish",         cs: "zrušit / odstranit" },
-  { en: "abundant",        cs: "hojný / bohatý" },
-  { en: "acknowledge",     cs: "uznat / přiznat" },
-  { en: "acquire",         cs: "získat / nabýt" },
-  { en: "adequate",        cs: "přiměřený / dostačující" },
-  { en: "aggressive",      cs: "agresivní / útočný" },
-  { en: "allocate",        cs: "přidělit / rozdělit" },
-  { en: "ambitious",       cs: "ambiciózní / ctižádostivý" },
-  { en: "anxious",         cs: "úzkostlivý / znepokojený" },
-  { en: "approach",        cs: "přístup / přiblížit se" },
-  { en: "approximately",   cs: "přibližně / zhruba" },
-  { en: "assume",          cs: "předpokládat / převzít" },
-  { en: "attitude",        cs: "postoj / přístup" },
-  { en: "available",       cs: "dostupný / volný" },
-  { en: "aware",           cs: "vědomý / informovaný" },
-  { en: "behave",          cs: "chovat se / jednat" },
-  { en: "benefit",         cs: "výhoda / prospívat" },
-  { en: "breakthrough",    cs: "průlom / objev" },
-  { en: "capable",         cs: "schopný / způsobilý" },
-  { en: "circumstances",   cs: "okolnosti / podmínky" },
-  { en: "commit",          cs: "zavázat se / spáchat" },
-  { en: "communicate",     cs: "komunikovat / sdělovat" },
-  { en: "community",       cs: "komunita / společenství" },
-  { en: "compete",         cs: "soutěžit / soupeřit" },
-  { en: "concern",         cs: "znepokojení / týkat se" },
-  { en: "confident",       cs: "sebejistý / přesvědčený" },
-  { en: "consequence",     cs: "důsledek / následek" },
-  { en: "consider",        cs: "zvážit / považovat za" },
-  { en: "consistent",      cs: "důsledný / konzistentní" },
-  { en: "contribute",      cs: "přispívat / podílet se" },
-  { en: "convince",        cs: "přesvědčit / přesvědčovat" },
-  { en: "cope with",       cs: "vyrovnat se / zvládat" },
-  { en: "currently",       cs: "v současnosti / nyní" },
-  { en: "deal with",       cs: "řešit / zabývat se" },
-  { en: "decline",         cs: "pokles / odmítnout" },
-  { en: "demand",          cs: "požadavek / vyžadovat" },
-  { en: "depressed",       cs: "deprimovaný / sklíčený" },
-  { en: "determined",      cs: "odhodlaný / rozhodný" },
-  { en: "diversity",       cs: "rozmanitost / různorodost" },
-  { en: "effective",       cs: "účinný / efektivní" },
-  { en: "efficient",       cs: "výkonný / hospodárný" },
-  { en: "embarrassed",     cs: "trapně / v rozpacích" },
-  { en: "employ",          cs: "zaměstnat / využít" },
-  { en: "encourage",       cs: "povzbudit / podpořit" },
-  { en: "enormous",        cs: "obrovský / nesmírný" },
-  { en: "environment",     cs: "prostředí / životní prostředí" },
-  { en: "establish",       cs: "zřídit / prokázat" },
-  { en: "evidence",        cs: "důkaz / svědectví" },
-  { en: "exhausted",       cs: "vyčerpaný / unavený" },
-  { en: "expand",          cs: "rozšířit / rozrůstat se" },
-  { en: "explore",         cs: "zkoumat / prozkoumat" },
-  { en: "failure",         cs: "neúspěch / selhání" },
-  { en: "flexible",        cs: "flexibilní / přizpůsobivý" },
-  { en: "focus on",        cs: "soustředit se na" },
-  { en: "fortunately",     cs: "naštěstí / šťastně" },
-  { en: "frustrated",      cs: "frustrovaný / zklamaný" },
-  { en: "global",          cs: "globální / světový" },
-  { en: "gradually",       cs: "postupně / pomalu" },
-  { en: "grateful",        cs: "vděčný / povděčný" },
-  { en: "honest",          cs: "čestný / upřímný" },
-  { en: "identify",        cs: "identifikovat / rozpoznat" },
-  { en: "ignore",          cs: "ignorovat / přehlížet" },
-  { en: "impact",          cs: "dopad / vliv" },
-  { en: "improve",         cs: "zlepšit / zdokonalit" },
-  { en: "income",          cs: "příjem / výdělek" },
-  { en: "increase",        cs: "zvýšit / nárůst" },
-  { en: "independent",     cs: "nezávislý / samostatný" },
-  { en: "influence",       cs: "vliv / ovlivňovat" },
-  { en: "injure",          cs: "zranit / poškodit" },
-  { en: "insist",          cs: "trvat na / naléhat" },
-  { en: "intend",          cs: "zamýšlet / plánovat" },
-  { en: "issue",           cs: "problém / téma" },
-  { en: "lack",            cs: "nedostatek / postrádat" },
-  { en: "maintain",        cs: "udržovat / tvrdit" },
-  { en: "manage to",       cs: "podařit se / zvládnout" },
-  { en: "meanwhile",       cs: "mezitím / zatímco" },
-  { en: "mention",         cs: "zmínit / uvést" },
-  { en: "minority",        cs: "menšina / méně" },
-  { en: "moreover",        cs: "navíc / kromě toho" },
-  { en: "motivated",       cs: "motivovaný / nadšený" },
-  { en: "nowadays",        cs: "v dnešní době / dnes" },
-  { en: "obvious",         cs: "zřejmý / samozřejmý" },
-  { en: "overcome",        cs: "překonat / zvítězit" },
-  { en: "participate",     cs: "účastnit se / zapojit se" },
-  { en: "persuade",        cs: "přesvědčit / přimět" },
-  { en: "prevent",         cs: "zabránit / předcházet" },
-  { en: "provide",         cs: "poskytnout / zajistit" },
-  { en: "raise awareness", cs: "zvyšovat povědomí" },
-  { en: "reasonable",      cs: "rozumný / přiměřený" },
-  { en: "reduce",          cs: "snížit / omezit" },
-  { en: "reflect on",      cs: "přemýšlet o / zamyslet se" },
-  { en: "rely on",         cs: "spoléhat se na / záviset na" },
-  { en: "responsible",     cs: "zodpovědný / odpovědný" },
-  { en: "significant",     cs: "významný / podstatný" },
-  { en: "solution",        cs: "řešení / odpověď" },
-  { en: "struggle",        cs: "boj / bojovat" },
-  { en: "support",         cs: "podpora / podporovat" },
-  { en: "tend to",         cs: "mít tendenci / zpravidla" },
-  { en: "therefore",       cs: "proto / tudíž" },
-  { en: "throughout",      cs: "po celou dobu / všude" },
-  { en: "valuable",        cs: "cenný / hodnotný" },
-  { en: "whereas",         cs: "zatímco / kdežto" },
-  { en: "willing",         cs: "ochotný / svolný" },
-];
+<!-- Paywall -->
+<div class="paywall-overlay" id="paywallOverlay">
+  <div class="paywall-box">
+    <div class="paywall-title">⏳ Trial ended</div>
+    <p>Zkušební období (<span id="pwDays">30</span> dní) skončilo. Pro pokračování je potřeba zaplatit poplatek.</p>
+    <p class="muted">Zaplať přes QR kód a pošli e-mail, pod kterým se přihlašuješ (<b id="pwEmail"></b>). Přístup ti odemknu ručně. Tvoje slovíčka zůstávají uložená.</p>
+    <img src="images/donate_qr.png" alt="Payment QR code">
+    <p><a href="mailto:sw@marekudlacek.cz?subject=DrivEnglish%20-%20odemknout%20p%C5%99%C3%ADstup">sw@marekudlacek.cz</a></p>
+    <button class="btn-small" onclick="location.reload()">I've paid — reload</button>
+  </div>
+</div>
 
-let words         = [...defaultWords];
+<script>
+
+let words         = [];
 let currentIndex  = 0;
 let isPlaying     = false;
 let playTimer     = null;
 let timerInterval = null;
 let playGen       = 0;
-
-document.getElementById('wordListInput').value =
-  "// My words — format: english = czech\n\nadvocate = obhájce / prosazovat\nbreakthrough = průlom / objev\ncatalyst = katalyzátor / spouštěč";
 
 function speak(text, lang) {
   return new Promise(resolve => {
@@ -413,11 +396,25 @@ function setStatus(state, text) {
 
 function updateCard(idx, showCs) {
   const w = words[idx];
+  if (!w) {
+    document.getElementById('wordEn').textContent = '— — —';
+    document.getElementById('wordCs').textContent = '— — —';
+    document.getElementById('wordCs').classList.remove('visible');
+    document.getElementById('wordDesc').textContent = '';
+    document.getElementById('langCs').style.opacity = '0';
+    document.getElementById('currentIdx').textContent = '—';
+    document.getElementById('totalCount').textContent = words.length || '—';
+    document.getElementById('progressFill').style.width = '0%';
+    return;
+  }
   document.getElementById('wordEn').textContent = w.en.toUpperCase();
   const csEl  = document.getElementById('wordCs');
   const csLbl = document.getElementById('langCs');
   csEl.textContent = w.cs;
   csEl.classList.toggle('visible', showCs);
+  const descEl = document.getElementById('wordDesc');
+  descEl.textContent = w.description || '';
+  descEl.classList.toggle('visible', showCs);
   csLbl.style.opacity = showCs ? '1' : '0';
   document.getElementById('currentIdx').textContent = idx + 1;
   document.getElementById('totalCount').textContent = words.length;
@@ -480,6 +477,7 @@ function delay(ms) {
 }
 
 function togglePlay() {
+  if (!words.length) { setStatus('', 'No words — select a category with words'); return; }
   if (isPlaying) {
     isPlaying = false;
     clearTimeout(playTimer);
@@ -517,11 +515,13 @@ function stopPlayback() {
 }
 
 function resumePlayback() {
+  if (!words.length) { setStatus('', 'No words — select a category with words'); return; }
   isPlaying = true;
   playWord(currentIndex);
 }
 
 function prevWord() {
+  if (!words.length) return;
   const was = isPlaying;
   if (isPlaying) {
     isPlaying = false;
@@ -548,43 +548,11 @@ function toggleEditor() {
   document.getElementById('editorBody').classList.toggle('open');
 }
 
-function loadWords() {
-  const parsed = document.getElementById('wordListInput').value.trim()
-    .split('\n').filter(l => l.includes('=') && !l.trim().startsWith('//'))
-    .map(l => { const [en, ...r] = l.split('='); return { en: en.trim(), cs: r.join('=').trim() }; })
-    .filter(w => w.en && w.cs);
-  if (!parsed.length) { alert('No words found. Format: english = czech'); return; }
-  words = shuffle(parsed);
-  currentIndex = 0; isPlaying = false;
-  clearTimeout(playTimer); window.speechSynthesis.cancel();
-  updateCard(0, false);
-  setStatus('', `Loaded ${words.length} words — press CONTINUE`);
-  document.getElementById('playBtn').textContent = '▶ CONTINUE';
-  document.getElementById('editorToggle').classList.remove('open');
-  document.getElementById('editorBody').classList.remove('open');
-}
-
-window.speechSynthesis.onvoiceschanged = () => {};
-shuffle(words);
-updateCard(0, false);
-
-// localStorage pro vlastní slovíčka
-const LS_KEY = 'driveenglish_custom';
-function saveWordsToStorage() {
-  const val = document.getElementById('wordListInput').value;
-  try { localStorage.setItem(LS_KEY, val); } catch(_) {}
-}
-function loadWordsFromStorage() {
-  try {
-    const saved = localStorage.getItem(LS_KEY);
-    if (saved) document.getElementById('wordListInput').value = saved;
-  } catch(_) {}
-}
-loadWordsFromStorage();
-document.getElementById('wordListInput').addEventListener('input', saveWordsToStorage);
+/* DATA — viz blok DATA / API níže */
 
 document.addEventListener('keydown', e => {
-  if (e.target.tagName === 'TEXTAREA') return;
+  if (['TEXTAREA','INPUT','SELECT'].includes(e.target.tagName)) return;
+  if (document.getElementById('paywallOverlay').classList.contains('open')) return;
   if (e.key === ' ')         { e.preventDefault(); togglePlay(); }
   if (e.key === 'ArrowLeft') prevWord();
   if (e.key === 'Escape')    stopPlayback();
@@ -703,6 +671,305 @@ function openDonate() {
 function closeDonate() {
   document.getElementById('donateOverlay').classList.remove('open');
 }
+
+/* ───── DATA / API (Cloudflare Worker + D1) ───── */
+const SEL_KEY = 'drivenglish_selected_categories';   // per-device výběr kategorií
+const LEGACY_KEY = 'driveenglish_custom';             // staré localStorage slovíčka
+let categories = [];      // [{id, name, word_count}]
+let selectedCats = [];    // [id]
+let catsInitialized = false;
+let editorWords = [];     // slova kategorie v editoru
+let editingWordId = null;
+
+class PaywallError extends Error {}
+
+async function api(path, opts = {}) {
+  const init = { method: opts.method || 'GET', headers: {}, credentials: 'same-origin' };
+  if (opts.body !== undefined) {
+    init.headers['Content-Type'] = 'application/json';
+    init.body = JSON.stringify(opts.body);
+  }
+  const res = await fetch('/api' + path, init);
+  let data = null;
+  try { data = await res.json(); } catch (_) {}
+  if (res.status === 402) { showPaywall(data || {}); throw new PaywallError('Trial expired'); }
+  if (res.status === 401) throw new Error('Not signed in — reload the page');
+  if (!res.ok) throw new Error((data && data.error) || ('HTTP ' + res.status));
+  return data;
+}
+
+function apiError(err) {
+  if (err instanceof PaywallError) return;
+  console.error(err);
+  setStatus('', '⚠ ' + err.message);
+}
+
+function lsGet(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (_) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (_) {} }
+
+/* trial / paywall */
+function showPaywall(me) {
+  document.getElementById('pwDays').textContent = me.trial_days || 30;
+  document.getElementById('pwEmail').textContent = me.email || '';
+  document.getElementById('paywallOverlay').classList.add('open');
+  if (isPlaying) pausePlayback();
+}
+
+function renderTrialBanner(me) {
+  const el = document.getElementById('trialBanner');
+  el.textContent = '';
+  if (me.status !== 'trial') { el.classList.remove('show'); return; }
+  const days = Math.max(0, Math.ceil((new Date(me.trial_ends_at) - Date.now()) / 86400000));
+  el.append('Free trial: ');
+  const b = document.createElement('b');
+  b.textContent = days + (days === 1 ? ' day' : ' days');
+  el.append(b, ' left');
+  el.classList.add('show');
+}
+
+/* kategorie */
+async function loadCategories() {
+  categories = await api('/categories');
+  const valid = new Set(categories.map(c => c.id));
+  if (!catsInitialized) {
+    let saved = [];
+    try { saved = JSON.parse(lsGet(SEL_KEY) || '[]'); } catch (_) {}
+    selectedCats = Array.isArray(saved) ? saved : [];
+  }
+  selectedCats = selectedCats.filter(id => valid.has(id));
+  if (!catsInitialized && !selectedCats.length && categories.length) selectedCats = [categories[0].id];
+  catsInitialized = true;
+  renderCategories();
+}
+
+function renderCategories() {
+  const box = document.getElementById('catChips');
+  box.textContent = '';
+  if (!categories.length) {
+    const s = document.createElement('span');
+    s.className = 'editor-hint'; s.textContent = 'No categories yet — create one in My Words.';
+    box.append(s);
+  }
+  for (const c of categories) {
+    const b = document.createElement('button');
+    b.className = 'chip' + (selectedCats.includes(c.id) ? ' on' : '');
+    b.textContent = c.name;
+    const sm = document.createElement('small'); sm.textContent = c.word_count;
+    b.append(sm);
+    b.onclick = () => toggleCategory(c.id);
+    box.append(b);
+  }
+  const total = categories.filter(c => selectedCats.includes(c.id)).reduce((a, c) => a + c.word_count, 0);
+  document.getElementById('catSummary').textContent = selectedCats.length ? total + ' words' : '';
+
+  const sel = document.getElementById('edCategory');
+  const prev = Number(sel.value);
+  sel.textContent = '';
+  for (const c of categories) {
+    const o = document.createElement('option');
+    o.value = c.id; o.textContent = `${c.name} (${c.word_count})`;
+    sel.append(o);
+  }
+  if (categories.some(c => c.id === prev)) sel.value = prev;
+}
+
+function toggleCategory(id) {
+  selectedCats = selectedCats.includes(id) ? selectedCats.filter(x => x !== id) : [...selectedCats, id];
+  lsSet(SEL_KEY, JSON.stringify(selectedCats));
+  renderCategories();
+  reloadPlayback().catch(apiError);
+}
+
+async function reloadPlayback() {
+  isPlaying = false; playGen++;
+  clearTimeout(playTimer); clearInterval(timerInterval);
+  window.speechSynthesis.cancel();
+  setCardMode('');
+  document.getElementById('playBtn').textContent = '▶ CONTINUE';
+  words = selectedCats.length ? await api('/words?category=' + selectedCats.join(',')) : [];
+  shuffle(words);
+  currentIndex = 0;
+  updateCard(0, false);
+  setStatus('', words.length ? `Loaded ${words.length} words — press CONTINUE` : 'No words — select a category with words');
+}
+
+function editorCategoryId() { return Number(document.getElementById('edCategory').value) || null; }
+
+async function addCategory() {
+  const name = (prompt('New category name:') || '').trim();
+  if (!name) return;
+  try {
+    const c = await api('/categories', { method: 'POST', body: { name } });
+    await loadCategories();
+    document.getElementById('edCategory').value = c.id;
+    await renderWordList();
+  } catch (e) { apiError(e); alert(e.message); }
+}
+
+async function renameCategory() {
+  const id = editorCategoryId(); if (!id) return;
+  const cur = categories.find(c => c.id === id);
+  const name = (prompt('Rename category:', cur ? cur.name : '') || '').trim();
+  if (!name || (cur && name === cur.name)) return;
+  try {
+    await api('/categories/' + id, { method: 'PATCH', body: { name } });
+    await loadCategories();
+  } catch (e) { apiError(e); alert(e.message); }
+}
+
+async function deleteCategory() {
+  const id = editorCategoryId(); if (!id) return;
+  const cur = categories.find(c => c.id === id);
+  if (!confirm(`Delete category "${cur ? cur.name : ''}" and all its ${cur ? cur.word_count : ''} words?`)) return;
+  try {
+    await api('/categories/' + id, { method: 'DELETE' });
+    selectedCats = selectedCats.filter(x => x !== id);
+    lsSet(SEL_KEY, JSON.stringify(selectedCats));
+    await loadCategories();
+    await renderWordList();
+    await reloadPlayback();
+  } catch (e) { apiError(e); }
+}
+
+/* slova v editoru */
+async function renderWordList() {
+  const list = document.getElementById('wordList');
+  const id = editorCategoryId();
+  list.textContent = '';
+  resetWordForm();
+  if (!id) { editorWords = []; document.getElementById('edCount').textContent = ''; return; }
+  try { editorWords = await api('/words?category=' + id); } catch (e) { apiError(e); return; }
+  document.getElementById('edCount').textContent = '(' + editorWords.length + ')';
+  for (const w of editorWords) {
+    const li = document.createElement('li');
+    const t = document.createElement('div'); t.className = 'wl-text';
+    const en = document.createElement('span'); en.className = 'wl-en'; en.textContent = w.en;
+    const cs = document.createElement('span'); cs.className = 'wl-cs'; cs.textContent = ' — ' + w.cs;
+    t.append(en, cs);
+    if (w.description) {
+      const d = document.createElement('div'); d.className = 'wl-desc'; d.textContent = w.description;
+      t.append(d);
+    }
+    const a = document.createElement('div'); a.className = 'wl-actions';
+    const be = document.createElement('button'); be.className = 'btn-small'; be.textContent = '✎';
+    be.title = 'Edit'; be.onclick = () => editWord(w.id);
+    const bd = document.createElement('button'); bd.className = 'btn-small danger'; bd.textContent = '✕';
+    bd.title = 'Delete'; bd.onclick = () => removeWord(w.id);
+    a.append(be, bd);
+    li.append(t, a);
+    list.append(li);
+  }
+}
+
+function resetWordForm() {
+  editingWordId = null;
+  for (const f of ['edEn', 'edCs', 'edDesc']) document.getElementById(f).value = '';
+  document.getElementById('edFormLabel').textContent = 'Add word';
+  document.getElementById('edSave').textContent = '＋ Add word';
+  document.getElementById('edCancel').style.display = 'none';
+}
+
+function editWord(id) {
+  const w = editorWords.find(x => x.id === id); if (!w) return;
+  editingWordId = id;
+  document.getElementById('edEn').value = w.en;
+  document.getElementById('edCs').value = w.cs;
+  document.getElementById('edDesc').value = w.description || '';
+  document.getElementById('edFormLabel').textContent = 'Edit word';
+  document.getElementById('edSave').textContent = '✓ Save';
+  document.getElementById('edCancel').style.display = '';
+  document.getElementById('edEn').focus();
+}
+
+async function afterWordChange() {
+  await loadCategories();
+  await renderWordList();
+  if (selectedCats.includes(editorCategoryId())) await reloadPlayback();
+}
+
+async function saveWord() {
+  const category_id = editorCategoryId();
+  if (!category_id) { alert('Create a category first.'); return; }
+  const en = document.getElementById('edEn').value.trim();
+  const cs = document.getElementById('edCs').value.trim();
+  const description = document.getElementById('edDesc').value.trim();
+  if (!en || !cs) { alert('English and Czech are required.'); return; }
+  try {
+    if (editingWordId) await api('/words/' + editingWordId, { method: 'PATCH', body: { en, cs, description } });
+    else await api('/words', { method: 'POST', body: { category_id, en, cs, description } });
+    await afterWordChange();
+  } catch (e) { apiError(e); alert(e.message); }
+}
+
+async function removeWord(id) {
+  const w = editorWords.find(x => x.id === id);
+  if (!confirm(`Delete "${w ? w.en : ''}"?`)) return;
+  try {
+    await api('/words/' + id, { method: 'DELETE' });
+    await afterWordChange();
+  } catch (e) { apiError(e); }
+}
+
+function parseWordLines(text) {
+  return text.split('\n')
+    .map(l => l.trim())
+    .filter(l => l && !l.startsWith('//') && l.includes('='))
+    .map(l => {
+      const [en, ...rest] = l.split('=');
+      const right = rest.join('=');
+      const bar = right.indexOf('|');
+      const cs = (bar >= 0 ? right.slice(0, bar) : right).trim();
+      const description = bar >= 0 ? right.slice(bar + 1).trim() : '';
+      return { en: en.trim(), cs, description };
+    })
+    .filter(w => w.en && w.cs);
+}
+
+async function importWords() {
+  const category_id = editorCategoryId();
+  if (!category_id) { alert('Create a category first.'); return; }
+  const ta = document.getElementById('wordListInput');
+  const lines = parseWordLines(ta.value);
+  if (!lines.length) { alert('No words found. Format: english = czech | description'); return; }
+  try {
+    const r = await api('/words/bulk', { method: 'POST', body: { category_id, lines } });
+    ta.value = '';
+    await afterWordChange();
+    setStatus('', `Imported ${r.inserted} words`);
+  } catch (e) { apiError(e); alert(e.message); }
+}
+
+/* jednorázová migrace starých localStorage slovíček */
+async function migrateLegacyWords() {
+  const legacy = lsGet(LEGACY_KEY);
+  if (!legacy) return;
+  const lines = parseWordLines(legacy);
+  if (!lines.length) { lsDel(LEGACY_KEY); return; }
+  if (!confirm(`Found ${lines.length} words saved in this browser. Import them to a new category "My words"?`)) {
+    lsDel(LEGACY_KEY); return;
+  }
+  let cat = categories.find(c => c.name === 'My words');
+  if (!cat) cat = await api('/categories', { method: 'POST', body: { name: 'My words' } });
+  await api('/words/bulk', { method: 'POST', body: { category_id: cat.id, lines: lines.slice(0, 1000) } });
+  lsDel(LEGACY_KEY);
+  await loadCategories();
+}
+
+async function init() {
+  updateCard(0, false);
+  setStatus('', 'Loading…');
+  try {
+    const me = await api('/me');
+    if (me.status === 'expired') { showPaywall(me); setStatus('', 'Trial ended'); return; }
+    renderTrialBanner(me);
+    await loadCategories();
+    await migrateLegacyWords();
+    await renderWordList();
+    await reloadPlayback();
+  } catch (e) { apiError(e); }
+}
+init();
 
 </script>
 

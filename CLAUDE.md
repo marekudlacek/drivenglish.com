@@ -1,38 +1,69 @@
 # DrivEnglish
 
-Single-page vocabulary learning app for learning English while driving. No build step, no dependencies — one HTML file.
+Vocabulary learning app for learning English while driving. Static frontend (no build step, no npm deps) + Cloudflare Worker API + D1 (SQLite). Whole site sits behind Cloudflare Access.
 
 ## Architecture
 
-Everything lives in `index.html` (= `drivenglish.html`):
-- **CSS** — CSS custom properties in `:root`, dark theme with cyan (`--accent` = `#00d4ff`) and orange (`--accent2` = `#ff6b35`) accents
-- **JS** — vanilla ES2020, no frameworks
-- **Fonts** — Rajdhani (headings/labels) + Nunito (body) via Google Fonts CDN
-- **Assets** — `images/donate_qr.png` (donate QR code)
+```
+public/index.html     frontend: HTML + CSS + vanilla ES2020 in one file
+public/_headers       security headers (CSP, X-Frame-Options, Permissions-Policy: microphone=(self))
+public/images/        donate_qr.png (donate + paywall), app.png (README)
+src/worker.js         Worker: /api/* router, Access JWT verification, trial/paywall, D1 queries
+src/seed.js           103 default words, seeded lazily into category "Default" for each new user
+migrations/*.sql      D1 schema
+wrangler.toml         Worker + static assets + D1 binding (DB) + vars
+```
 
-## Key features
+- Static assets served by the Worker's assets binding; `run_worker_first = ["/api/*"]`, SPA fallback via `not_found_handling`.
+- **CSS** — custom properties in `:root`, dark theme with cyan (`--accent` = `#00d4ff`) and orange (`--accent2` = `#ff6b35`).
+- **Fonts** — Rajdhani (headings/labels) + Nunito (body) via Google Fonts CDN.
+
+## Data model (D1)
+
+| Table | Columns |
+|---|---|
+| `users` | `email` PK, `first_seen` (ISO, UTC), `paid_until` (nullable), `note` |
+| `categories` | `id`, `user_email` → users, `name` (unique per user) |
+| `words` | `id`, `category_id` → categories (cascade), `en`, `cs`, `description` |
+
+Every query is scoped by `user_email` (ownership via `JOIN categories`). Always `.bind()` — no string-built SQL with user values.
+
+## Auth & trial
+
+- Cloudflare Access (self-hosted app, policy Allow Everyone, One-time PIN) protects the whole domain.
+- Worker verifies `Cf-Access-Jwt-Assertion` (RS256 vs `https://$ACCESS_TEAM_DOMAIN/cdn-cgi/access/certs`, checks `aud`, `exp`, `iss`). Email from the JWT = user id.
+- Local dev: `DEV_USER_EMAIL` from `.dev.vars`, honoured **only** when hostname is `localhost`/`127.0.0.1`.
+- Trial: `first_seen + TRIAL_DAYS` (default 30). Access OK if in trial or `paid_until > now`, else all `/api/*` except `/api/me` return **402** → frontend shows paywall overlay.
+- No payment provider yet — unlock manually via `wrangler d1 execute … UPDATE users SET paid_until=…` (see README).
+- Mutating endpoints require `Content-Type: application/json` (415 otherwise) — also blocks simple cross-site form posts.
+
+## API
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/api/me` | `{email, status: trial|paid|expired, trial_days, trial_ends_at, paid_until}` |
+| GET/POST | `/api/categories` | GET includes `word_count`, seeds "Default" on first call |
+| PATCH/DELETE | `/api/categories/:id` | DELETE removes its words |
+| GET | `/api/words?category=1,2` | words from user's categories |
+| POST | `/api/words` | `{category_id, en, cs, description?}` |
+| POST | `/api/words/bulk` | `{category_id, lines:[{en,cs,description?}]}`, max 1000 |
+| PATCH/DELETE | `/api/words/:id` | PATCH may move to another own category |
+
+Limits: name ≤ 60, en/cs ≤ 200, description ≤ 1000.
+
+## Frontend key features
 
 | Feature | Implementation |
 |---|---|
-| TTS playback | `window.speechSynthesis` — EN → 3s pause → CZ → 1s gap → loop |
-| Voice control | `SpeechRecognition` (Chromium/Safari), `cs-CZ` lang, auto-restart |
-| Word editor | Textarea, format `english = czech`, one pair per line, `//` comments |
-| Persistence | `localStorage` key `driveenglish_custom` |
+| TTS playback | `window.speechSynthesis` — EN → 3s pause → CZ (+ description shown, not spoken) → 1s gap → loop |
+| Categories | Chips, multi-select; selection kept per device in `localStorage` `drivenglish_selected_categories` |
+| Word editor | "My Words" panel: category select + new/rename/delete, add/edit/delete word, bulk import textarea (`english = czech \| description`, `//` comments) |
+| Legacy migration | Old `localStorage` key `driveenglish_custom` → offered import into category "My words", then removed |
+| Voice control | `SpeechRecognition` (Chromium/Safari), `cs-CZ`, auto-restart |
 | Progress | Linear progress bar, timer SVG arc (94.2 dasharray = 2πr, r=15) |
 | Shuffle on STOP | `stopPlayback()` calls `shuffle(words)` before resetting to index 0 |
-| Donate modal | `openDonate()` / `closeDonate()` — overlay with QR from `images/donate_qr.png` |
-| Contact button | Hover reveal — shows "CONTACT" by default, reveals `sw@marekudlacek.cz` on hover |
-
-## UI colors
-
-| Element | Color |
-|---|---|
-| "Driv" in logo | cyan `--accent` |
-| "English" in logo | white `#ffffff` |
-| Czech translations | cyan `--accent` |
-| Donate button text | white `#ffffff` |
-| Contact button (default) | muted `--muted` |
-| Contact button (hover) | cyan `--accent` |
+| Trial/paywall | `renderTrialBanner()`, `showPaywall()`; `api()` throws `PaywallError` on 402 |
+| Donate modal | `openDonate()` / `closeDonate()` |
 
 ## Voice commands
 
@@ -44,7 +75,7 @@ Everything lives in `index.html` (= `drivenglish.html`):
 | next / další / přeskočit / skip | `togglePlay()` — skips current word |
 | back / zpět / předchozí | `prevWord()` |
 
-## Keyboard shortcuts
+## Keyboard shortcuts (ignored while typing in inputs)
 
 | Key | Action |
 |---|---|
@@ -58,34 +89,28 @@ Everything lives in `index.html` (= `drivenglish.html`):
 playWord(idx)
   → speak EN (en-GB)
   → delay 3 s + timer arc
-  → show CZ translation + speak CZ (cs-CZ)
+  → show CZ + description, speak CZ (cs-CZ)
   → delay 1 s
   → playWord(idx + 1)   // recursive, guarded by playGen
 ```
 
-`playGen` is incremented on every new `playWord` call. Each async chain checks `playGen !== gen` before proceeding — this is the cancellation mechanism.
+`playGen` is incremented on every new `playWord` call (and in `reloadPlayback()`); each async step checks `playGen !== gen` — the cancellation mechanism.
 
-## Cloudflare deployment
+## Dev & deploy
 
-Files needed:
-- `index.html` — entry point
-- `_headers` — security headers (CSP, X-Frame-Options, `Permissions-Policy: microphone=(self)`)
-- `_redirects` — SPA fallback (`/* /index.html 200`)
-- `images/donate_qr.png` — required for donate modal
-
-Deploy via Cloudflare Workers & Pages → Upload assets (drag-and-drop folder).
-The app is fully static, no workers or KV needed.
+See README. Short version: `wrangler d1 migrations apply drivenglish --local && wrangler dev`; deploy with `wrangler deploy` (drag-and-drop upload no longer works — there is server code).
 
 ## Known limitations / gotchas
 
-- **SpeechSynthesis voices** load async — `onvoiceschanged` is wired but no retry logic if voices load after first `speak()` call. On Chrome this is usually fine; on some mobile browsers the first word may use a fallback voice.
-- **Safari** requires `SpeechRecognition.continuous = false` — the app handles this with manual restart in `r.onend`.
-- **Microphone permission** must be granted by the user; `not-allowed` error disables voice control and shows an error state.
-- CSS custom properties were previously broken (en-dash `–` instead of `--` in `var()` calls). Fixed 2026-04.
+- **SpeechSynthesis voices** load async; first word on some mobile browsers may use a fallback voice.
+- **Safari** requires `SpeechRecognition.continuous = false` — handled with manual restart in `r.onend`.
+- **Microphone permission** `not-allowed` disables voice control and shows an error state.
+- Zero Trust free plan: max 50 users.
+- `users.paid_until` accepts `YYYY-MM-DD` (treated as end of that day UTC) or full ISO timestamp.
 
 ## Security notes
 
-- No `innerHTML` with user input — words are set via `textContent` only (XSS-safe)
-- `localStorage` stores only the textarea content (plain text, no eval)
-- External dependencies: Google Fonts CDN only (style + font files)
-- CSP in `_headers` restricts scripts to `'self' 'unsafe-inline'` (inline script required since no bundler)
+- No `innerHTML` with user/DB data — everything via `textContent` / DOM APIs.
+- Never trust `Cf-Access-Authenticated-User-Email` alone — identity comes from the verified JWT.
+- `workers_dev = false` so the Worker isn't reachable outside the Access-protected domain.
+- CSP in `_headers`: scripts `'self' 'unsafe-inline'`, `connect-src 'self'`, fonts from Google only.

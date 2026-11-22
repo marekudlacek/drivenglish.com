@@ -1,0 +1,25 @@
+name = "drivenglish"
+main = "src/worker.js"
+compatibility_date = "2025-10-01"
+# Worker je dostupný jen přes custom doménu za Cloudflare Access.
+workers_dev = false
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "drivenglish"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+[vars]
+TRIAL_DAYS = "30"
+# Z Zero Trust → Access → Applications → <app> → Overview
+ACCESS_TEAM_DOMAIN = "REPLACE.cloudflareaccess.com"
+ACCESS_AUD = "REPLACE_WITH_APPLICATION_AUD_TAG"
+# Pouze pro `wrangler dev` — nastav v .dev.vars, NIKDY ne v produkci:
+# DEV_USER_EMAIL = "you@example.com"
