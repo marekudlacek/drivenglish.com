@@ -4,6 +4,10 @@ compatibility_date = "2025-10-01"
 # Worker je dostupný jen přes custom doménu za Cloudflare Access.
 workers_dev = false
 
+# Workers Logs — console.log/error z Workeru v dashboardu (Observability)
+[observability]
+enabled = true
+
 [assets]
 directory = "./public"
 binding = "ASSETS"
