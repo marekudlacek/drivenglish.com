@@ -1,0 +1,8 @@
+{
+  "name": "drivenglish",
+  "private": true,
+  "scripts": {
+    "deploy": "npx wrangler@4 d1 migrations apply drivenglish --remote && npx wrangler@4 deploy",
+    "dev": "npx wrangler@4 d1 migrations apply drivenglish --local && npx wrangler@4 dev"
+  }
+}

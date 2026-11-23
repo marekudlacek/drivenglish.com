@@ -1,0 +1,2 @@
+# Zkopíruj do .dev.vars pro lokální vývoj (wrangler dev). Obejde ověření Cloudflare Access.
+DEV_USER_EMAIL=dev@example.com
