@@ -8,6 +8,7 @@ Vocabulary learning app for learning English while driving. Static frontend (no 
 public/index.html     frontend: HTML + CSS + vanilla ES2020 in one file
 public/_headers       security headers (CSP, X-Frame-Options, Permissions-Policy: microphone=(self))
 public/images/        donate_qr.png (donate + paywall), app.png (README)
+public/audio/         silence.wav (iOS silent-mode keep-alive)
 src/worker.js         Worker: /api/* router, Access JWT verification, trial/paywall, D1 queries
 src/seed.js           103 default words, seeded lazily into category "Default" for each new user
 migrations/*.sql      D1 schema
@@ -111,6 +112,7 @@ playWord(idx)
 
 - **SpeechSynthesis voices** load async (`loadVoices()` + `onvoiceschanged`).
 - **iOS TTS** (Safari + home-screen app): speech is unlocked by a silent utterance in the first user gesture (`unlockTts()`); `speak()` waits ~150 ms after any `stopSpeech()` because WebKit silently drops speak right after cancel; on iOS a voice is set only for an exact-locale local voice, otherwise the system picks by `utt.lang` (non-downloaded voices play silence); watchdog timeout in case `onend` never fires. Always cancel via `stopSpeech()`, never `speechSynthesis.cancel()` directly. "🔊 Test" button in the status bar shows voice count, chosen voices and last TTS error.
+- **iOS silent mode** mutes Web Speech. While playing, `audioOn()` loops `public/audio/silence.wav` via `<audio>` and sets `navigator.audioSession.type = "playback"` so speech is audible with the Ring/Silent switch on; `audioOff()` on pause/stop/done/category change. Side effect: playback session pauses other audio (music) while DrivEnglish plays. `audioOn()` must be called from a user-gesture path (`resumePlayback`, `testSound`).
 - **Safari** requires `SpeechRecognition.continuous = false` — handled with manual restart in `r.onend`.
 - **Microphone permission** `not-allowed` disables voice control and shows an error state.
 - Zero Trust free plan: max 50 users.

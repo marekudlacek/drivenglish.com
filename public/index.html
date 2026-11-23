@@ -428,6 +428,23 @@ function unlockTts() {
     tts.speak(u);
   } catch (_) { unlockPending = false; }
 }
+/* iOS tichý režim: Web Speech se řídí přepínačem Zvonění/Ticho. Smyčka tichého <audio>
+   + audioSession "playback" přepne session na přehrávání médií → řeč je slyšet i v tichém
+   režimu. Zapíná se jen během přehrávání (playback session pozastaví jinou hudbu). */
+const keepAlive = new Audio('audio/silence.wav');
+keepAlive.loop = true;
+keepAlive.preload = 'auto';
+keepAlive.setAttribute('playsinline', '');
+
+function audioOn() {
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (_) {}
+  try { const p = keepAlive.play(); if (p && p.catch) p.catch(() => {}); } catch (_) {}
+}
+function audioOff() {
+  try { keepAlive.pause(); } catch (_) {}
+  try { if (navigator.audioSession) navigator.audioSession.type = 'auto'; } catch (_) {}
+}
+
 ['touchend', 'pointerup', 'click', 'keydown'].forEach(ev =>
   document.addEventListener(ev, unlockTts, { capture: true, passive: true }));
 
@@ -473,6 +490,7 @@ function speak(text, lang) {
 
 async function testSound() {
   if (isPlaying) pausePlayback();
+  audioOn();
   loadVoices();
   const en = pickVoice('en-GB'), cs = pickVoice('cs-CZ');
   const info = `voices: ${ttsVoices.length} · EN: ${en ? en.name : 'system'} · CZ: ${cs ? cs.name : 'system'}`;
@@ -480,6 +498,7 @@ async function testSound() {
   setStatus('playing', '🔊 ' + info);
   await speak('Hello, this is a test.', 'en-GB');
   await speak('Ahoj, toto je test.', 'cs-CZ');
+  if (!isPlaying) audioOff();
   setStatus('', lastTtsError ? `⚠ ${lastTtsError} · ${info}` : `✓ Test done · ${info}`);
 }
 
@@ -535,6 +554,7 @@ async function playWord(idx) {
   const gen = ++playGen;
   if (idx >= words.length) {
     setStatus('', 'Done! 🎉 Press STOP or BACK.');
+    audioOff();
     document.getElementById('playBtn').textContent = '▶ CONTINUE';
     isPlaying = false;
     return;
@@ -587,6 +607,7 @@ function togglePlay() {
 
 function pausePlayback() {
   isPlaying = false;
+  audioOff();
   clearTimeout(playTimer);
   clearInterval(timerInterval);
   stopSpeech();
@@ -597,6 +618,7 @@ function pausePlayback() {
 
 function stopPlayback() {
   isPlaying = false;
+  audioOff();
   clearTimeout(playTimer);
   clearInterval(timerInterval);
   stopSpeech();
@@ -610,6 +632,7 @@ function stopPlayback() {
 
 function resumePlayback() {
   if (!words.length) { setStatus('', 'No words — select a category with words'); return; }
+  audioOn();
   isPlaying = true;
   playWord(currentIndex);
 }
@@ -877,6 +900,7 @@ function toggleCategory(id) {
 
 async function reloadPlayback() {
   isPlaying = false; playGen++;
+  audioOff();
   clearTimeout(playTimer); clearInterval(timerInterval);
   stopSpeech();
   setCardMode('');
