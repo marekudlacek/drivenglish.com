@@ -71,7 +71,7 @@ transition: border-color 0.4s, box-shadow 0.4s;
 .word-cs.visible { opacity: 1; }
 .divider { width: 46px; height: 2px; background: linear-gradient(90deg, transparent, var(--muted), transparent); opacity: 0.35; }
 
-.status-bar { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; min-height: 18px; }
+.status-bar { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; min-height: 18px; flex-wrap: wrap; text-align: center; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: all 0.3s; flex-shrink: 0; }
 .status-dot.playing { background: var(--success); box-shadow: 0 0 8px var(--success); animation: pulse 1.5s ease-in-out infinite; }
 .status-dot.paused  { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
@@ -279,6 +279,7 @@ animation: wave 0.9s ease-in-out infinite;
   <div class="status-bar">
     <div class="status-dot" id="statusDot"></div>
     <span id="statusText">Press CONTINUE to start</span>
+    <button class="btn-small" onclick="testSound()" title="Test speech output">🔊 Test</button>
   </div>
   <div class="big-controls">
     <button class="btn-big btn-stop"     onclick="stopPlayback()">⏹ STOP</button>
@@ -375,18 +376,111 @@ let playTimer     = null;
 let timerInterval = null;
 let playGen       = 0;
 
+/* ───── TTS ─────
+   iOS/WebKit gotchas:
+   - speech must be "unlocked" by an utterance started inside a user gesture
+   - speak() right after cancel() is often silently dropped → wait a moment
+   - picking a voice that isn't downloaded (enhanced/novelty) plays silence → prefer
+     exact-locale local voices, otherwise let the engine choose by utt.lang
+   - onend sometimes never fires → watchdog timeout */
+const tts = window.speechSynthesis;
+const IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let ttsVoices = [];
+let ttsUnlocked = false;
+let unlockPending = false;   // tichá odemykací utterance ještě běží → nerušit, jen zařadit za ni
+let lastTtsError = '';
+let lastCancelAt = 0;
+
+function stopSpeech() {
+  lastCancelAt = Date.now();
+  try { tts.cancel(); } catch (_) {}
+}
+
+function loadVoices() { ttsVoices = tts.getVoices() || []; }
+loadVoices();
+if ('onvoiceschanged' in tts) tts.onvoiceschanged = loadVoices;
+
+function pickVoice(lang) {
+  const norm = l => (l || '').replace('_', '-').toLowerCase();
+  const want = norm(lang), base = want.split('-')[0];
+  const exact = ttsVoices.filter(v => norm(v.lang) === want);
+  const loose = ttsVoices.filter(v => norm(v.lang).split('-')[0] === base);
+  const best = list => list.find(v => v.default) || list.find(v => v.localService) || list[0];
+  if (IS_IOS) {
+    // Na iOS jen pokud existuje přesná lokální shoda; jinak ať vybere systém podle utt.lang.
+    return exact.find(v => v.localService) || null;
+  }
+  return best(exact.filter(v => !v.name.includes('Google'))) || best(exact) ||
+         best(loose.filter(v => !v.name.includes('Google'))) || best(loose) || null;
+}
+
+// Odemčení TTS při prvním dotyku/kliknutí (musí proběhnout synchronně v gestu).
+function unlockTts() {
+  if (ttsUnlocked) return;
+  ttsUnlocked = true;
+  try {
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    unlockPending = true;
+    u.onend = u.onerror = () => { unlockPending = false; };
+    setTimeout(() => { unlockPending = false; }, 1500);
+    tts.speak(u);
+  } catch (_) { unlockPending = false; }
+}
+['touchend', 'pointerup', 'click', 'keydown'].forEach(ev =>
+  document.addEventListener(ev, unlockTts, { capture: true, passive: true }));
+
 function speak(text, lang) {
   return new Promise(resolve => {
-    window.speechSynthesis.cancel();
-    const utt = new SpeechSynthesisUtterance(text);
-    utt.lang = lang; utt.rate = 0.88; utt.pitch = 1;
-    const voices = window.speechSynthesis.getVoices();
-    const voice = voices.find(v => v.lang.startsWith(lang.split('-')[0]) && !v.name.includes('Google'))
-               || voices.find(v => v.lang.startsWith(lang.split('-')[0]));
-    if (voice) utt.voice = voice;
-    utt.onend = resolve; utt.onerror = resolve;
-    window.speechSynthesis.speak(utt);
+    let done = false;
+    let watchdog = null;
+    const finish = () => { if (done) return; done = true; clearTimeout(watchdog); resolve(); };
+
+    const start = () => {
+      const utt = new SpeechSynthesisUtterance(text);
+      utt.lang = lang; utt.rate = 0.88; utt.pitch = 1; utt.volume = 1;
+      const voice = pickVoice(lang);
+      if (voice) utt.voice = voice;
+      utt.onend = finish;
+      utt.onerror = (e) => {
+        if (e.error && e.error !== 'interrupted' && e.error !== 'canceled') {
+          lastTtsError = e.error;
+          console.warn('TTS error', e.error, lang, voice && voice.name);
+          setStatus('paused', '⚠ Speech error: ' + e.error + ' (check volume / Settings → Accessibility → Spoken Content)');
+        }
+        finish();
+      };
+      // Pojistka: onend na iOS občas nepřijde.
+      watchdog = setTimeout(finish, Math.max(4000, text.length * 220));
+      try { tts.resume(); } catch (_) {}
+      tts.speak(utt);
+    };
+
+    // speak() hned po cancel() WebKit tiše zahodí → chvíli počkat
+    if (unlockPending) {
+      start();                // zařadí se do fronty za tichou utterance, gesto zůstane platné
+    } else if (tts.speaking || tts.pending) {
+      stopSpeech();
+      setTimeout(start, 150);
+    } else if (Date.now() - lastCancelAt < 150) {
+      setTimeout(start, 150 - (Date.now() - lastCancelAt));
+    } else {
+      start();
+    }
   });
+}
+
+async function testSound() {
+  if (isPlaying) pausePlayback();
+  loadVoices();
+  const en = pickVoice('en-GB'), cs = pickVoice('cs-CZ');
+  const info = `voices: ${ttsVoices.length} · EN: ${en ? en.name : 'system'} · CZ: ${cs ? cs.name : 'system'}`;
+  lastTtsError = '';
+  setStatus('playing', '🔊 ' + info);
+  await speak('Hello, this is a test.', 'en-GB');
+  await speak('Ahoj, toto je test.', 'cs-CZ');
+  setStatus('', lastTtsError ? `⚠ ${lastTtsError} · ${info}` : `✓ Test done · ${info}`);
 }
 
 function setStatus(state, text) {
@@ -482,7 +576,7 @@ function togglePlay() {
     isPlaying = false;
     clearTimeout(playTimer);
     clearInterval(timerInterval);
-    window.speechSynthesis.cancel();
+    stopSpeech();
     currentIndex = Math.min(currentIndex + 1, words.length - 1);
     isPlaying = true;
     playWord(currentIndex);
@@ -495,7 +589,7 @@ function pausePlayback() {
   isPlaying = false;
   clearTimeout(playTimer);
   clearInterval(timerInterval);
-  window.speechSynthesis.cancel();
+  stopSpeech();
   setCardMode('');
   setStatus('paused', 'Paused');
   document.getElementById('playBtn').textContent = '▶ CONTINUE';
@@ -505,7 +599,7 @@ function stopPlayback() {
   isPlaying = false;
   clearTimeout(playTimer);
   clearInterval(timerInterval);
-  window.speechSynthesis.cancel();
+  stopSpeech();
   setCardMode('');
   shuffle(words);
   currentIndex = 0;
@@ -527,7 +621,7 @@ function prevWord() {
     isPlaying = false;
     clearTimeout(playTimer);
     clearInterval(timerInterval);
-    window.speechSynthesis.cancel();
+    stopSpeech();
   }
   currentIndex = Math.max(0, currentIndex - 1);
   updateCard(currentIndex, false);
@@ -784,7 +878,7 @@ function toggleCategory(id) {
 async function reloadPlayback() {
   isPlaying = false; playGen++;
   clearTimeout(playTimer); clearInterval(timerInterval);
-  window.speechSynthesis.cancel();
+  stopSpeech();
   setCardMode('');
   document.getElementById('playBtn').textContent = '▶ CONTINUE';
   words = selectedCats.length ? await api('/words?category=' + selectedCats.join(',')) : [];
