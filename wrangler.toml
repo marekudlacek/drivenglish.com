@@ -1,4 +1,4 @@
-name = "drivenglish"
+name = "drivenglish-com"   # musí sedět s názvem Workeru v dashboardu (Workers Builds)
 main = "src/worker.js"
 compatibility_date = "2025-10-01"
 # Worker je dostupný jen přes custom doménu za Cloudflare Access.
