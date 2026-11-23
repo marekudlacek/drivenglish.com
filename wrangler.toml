@@ -20,6 +20,6 @@ migrations_dir = "migrations"
 TRIAL_DAYS = "30"
 # Z Zero Trust → Access → Applications → <app> → Overview
 ACCESS_TEAM_DOMAIN = "marek-kudlacek.cloudflareaccess.com"
-ACCESS_AUD = "REPLACE_WITH_APPLICATION_AUD_TAG"
+ACCESS_AUD = "7de51e534b4e1d21cbd3fb762bd08c3eebbd45977a185587f10b0620f28b27eb"
 # Pouze pro `wrangler dev` — nastav v .dev.vars, NIKDY ne v produkci:
 # DEV_USER_EMAIL = "you@example.com"
