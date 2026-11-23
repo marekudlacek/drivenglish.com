@@ -98,7 +98,7 @@ playWord(idx)
 
 ## Dev & deploy
 
-- Local: `npm run dev` (= `wrangler d1 migrations apply --local && wrangler dev`). `package.json` has scripts only, no dependencies — wrangler via `npx wrangler@4`.
+- Local: `npm run dev` (= `wrangler d1 migrations apply --local && wrangler dev --local-upstream localhost`; `--local-upstream` is required because `routes` would otherwise rewrite the host to drivenglish.com and the `DEV_USER_EMAIL` localhost bypass wouldn't apply). `package.json` has scripts only, no dependencies — wrangler via `npx wrangler@4`.
 - Prod: Cloudflare Workers Builds connected to the repo, branch `main`, deploy command `npm run deploy` (= `d1 migrations apply --remote && wrangler deploy`). Schema changes go into a new `migrations/000N_*.sql`, never edit an applied migration.
 - Worker name in dashboard is **`drivenglish-com`** — `name` in `wrangler.toml` must match it exactly, otherwise Workers Builds doesn't deploy. Don't rename either side.
 - Custom domain `drivenglish.com` is declared in `wrangler.toml` (`routes` with `custom_domain = true`) — manage it there, not in the dashboard.
@@ -109,7 +109,8 @@ playWord(idx)
 
 ## Known limitations / gotchas
 
-- **SpeechSynthesis voices** load async; first word on some mobile browsers may use a fallback voice.
+- **SpeechSynthesis voices** load async (`loadVoices()` + `onvoiceschanged`).
+- **iOS TTS** (Safari + home-screen app): speech is unlocked by a silent utterance in the first user gesture (`unlockTts()`); `speak()` waits ~150 ms after any `stopSpeech()` because WebKit silently drops speak right after cancel; on iOS a voice is set only for an exact-locale local voice, otherwise the system picks by `utt.lang` (non-downloaded voices play silence); watchdog timeout in case `onend` never fires. Always cancel via `stopSpeech()`, never `speechSynthesis.cancel()` directly. "🔊 Test" button in the status bar shows voice count, chosen voices and last TTS error.
 - **Safari** requires `SpeechRecognition.continuous = false` — handled with manual restart in `r.onend`.
 - **Microphone permission** `not-allowed` disables voice control and shows an error state.
 - Zero Trust free plan: max 50 users.
