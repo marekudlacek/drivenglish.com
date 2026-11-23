@@ -100,6 +100,9 @@ playWord(idx)
 
 - Local: `npm run dev` (= `wrangler d1 migrations apply --local && wrangler dev`). `package.json` has scripts only, no dependencies — wrangler via `npx wrangler@4`.
 - Prod: Cloudflare Workers Builds connected to the repo, branch `main`, deploy command `npm run deploy` (= `d1 migrations apply --remote && wrangler deploy`). Schema changes go into a new `migrations/000N_*.sql`, never edit an applied migration.
+- Worker name in dashboard is **`drivenglish-com`** — `name` in `wrangler.toml` must match it exactly, otherwise Workers Builds doesn't deploy. Don't rename either side.
+- Repo is **private**: builds are triggered via the Cloudflare Workers and Pages GitHub App, which must have access to the repo. If a push to `main` triggers no build, check the App's repository access first.
+- `ACCESS_AUD` is the **application** token's `aud` (cookie `CF_Authorization` on `drivenglish.com`, `"type": "app"`), not the org token from the team domain (`"type": "org"`).
 - `wrangler.toml` holds D1 `database_id` and `ACCESS_TEAM_DOMAIN` (not secrets). `ACCESS_AUD` = Application Audience tag of the Access app "DrivEnglish" (policy Allow / Everyone).
 
 ## Known limitations / gotchas

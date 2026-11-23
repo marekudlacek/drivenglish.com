@@ -38,11 +38,22 @@ One-time setup:
 
 1. **Access first** — Zero Trust → Access → Applications → *Add self-hosted app* for `drivenglish.com` (path `/*`), policy **Allow / Everyone**, login method **One-time PIN**. Copy the **Application Audience (AUD) tag** into `ACCESS_AUD` in `wrangler.toml` and push. Without it every API call returns 401.
 2. Workers & Pages → Create → **Import a repository** → `marekudlacek/drivenglish.com`
+   - Worker name: **`drivenglish-com`** — must match `name` in `wrangler.toml`, otherwise the build is not deployed
    - Production branch: `main`
    - Build command: *(empty)*
    - **Deploy command: `npm run deploy`**
 3. Make sure the Workers Builds API token has **D1 → Edit** permission (Settings → Builds → API token); otherwise the migration step fails.
 4. Attach the custom domain `drivenglish.com` to the Worker (Settings → Domains & Routes) and detach it from the old Pages project.
+5. The repository is **private** → the **Cloudflare Workers and Pages** GitHub App must have access to it: GitHub → Settings → Applications → Installed GitHub Apps → Cloudflare Workers and Pages → Configure → Repository access (add `drivenglish.com` or allow all repositories). Without it pushes to `main` don't trigger any build.
+
+### Troubleshooting deploys
+
+| Symptom | Cause / fix |
+|---|---|
+| Push to `main`, no build appears in Settings → Builds | GitHub App lost access to the repo (e.g. after switching it to private) — see step 5, or disconnect & reconnect the repo in Settings → Builds |
+| Build runs but nothing is deployed / name error | `name` in `wrangler.toml` ≠ Worker name in dashboard (`drivenglish-com`) |
+| Build fails on `d1 migrations apply` | Workers Builds API token lacks **D1 → Edit** |
+| App shows "Not signed in" | Open `/api/me`: `Bad audience` → wrong `ACCESS_AUD` (use the **app** token's `aud`, not the org token from the team domain); `Missing Access token` → Access app doesn't cover the whole domain |
 
 D1 database `drivenglish` and team domain are already set in `wrangler.toml`. Adding a schema change = new file `migrations/000N_*.sql`; it is applied on the next deploy.
 
