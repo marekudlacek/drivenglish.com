@@ -71,6 +71,11 @@ transition: border-color 0.4s, box-shadow 0.4s;
 .word-cs.visible { opacity: 1; }
 .divider { width: 46px; height: 2px; background: linear-gradient(90deg, transparent, var(--muted), transparent); opacity: 0.35; }
 
+.ios-hint { display: none; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--muted); background: var(--surface2); border: 1px solid rgba(255,107,53,0.3); border-radius: 9px; padding: 6px 10px; }
+.ios-hint.show { display: flex; }
+.ios-hint span { flex: 1; }
+.ios-hint b { color: var(--accent2); }
+.ios-hint-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.85rem; padding: 2px 4px; }
 .status-bar { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.8rem; color: var(--muted); flex-shrink: 0; min-height: 18px; flex-wrap: wrap; text-align: center; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: all 0.3s; flex-shrink: 0; }
 .status-dot.playing { background: var(--success); box-shadow: 0 0 8px var(--success); animation: pulse 1.5s ease-in-out infinite; }
@@ -281,6 +286,10 @@ animation: wave 0.9s ease-in-out infinite;
     <span id="statusText">Press CONTINUE to start</span>
     <button class="btn-small" onclick="testSound()" title="Test speech output">🔊 Test</button>
   </div>
+  <div class="ios-hint" id="iosHint">
+    <span>🔕 Neslyšíš nic? Vypni na iPhonu <b>tichý režim</b> — iOS v něm ztlumí čtení slovíček.</span>
+    <button class="ios-hint-close" onclick="dismissIosHint()" title="Skrýt">✕</button>
+  </div>
   <div class="big-controls">
     <button class="btn-big btn-stop"     onclick="stopPlayback()">⏹ STOP</button>
     <button class="btn-big btn-continue" id="playBtn" onclick="togglePlay()">▶ CONTINUE</button>
@@ -471,6 +480,20 @@ function speak(text, lang) {
   });
 }
 
+// iOS: Web Speech je v tichém režimu ztlumená a z webu to obejít nejde → jen nápověda.
+const IOS_HINT_KEY = 'drivenglish_ios_hint_dismissed';
+function initIosHint() {
+  if (!IS_IOS) return;
+  let dismissed = false;
+  try { dismissed = localStorage.getItem(IOS_HINT_KEY) === '1'; } catch (_) {}
+  if (!dismissed) document.getElementById('iosHint').classList.add('show');
+}
+function dismissIosHint() {
+  document.getElementById('iosHint').classList.remove('show');
+  try { localStorage.setItem(IOS_HINT_KEY, '1'); } catch (_) {}
+}
+initIosHint();
+
 async function testSound() {
   if (isPlaying) pausePlayback();
   loadVoices();
@@ -480,7 +503,8 @@ async function testSound() {
   setStatus('playing', '🔊 ' + info);
   await speak('Hello, this is a test.', 'en-GB');
   await speak('Ahoj, toto je test.', 'cs-CZ');
-  setStatus('', lastTtsError ? `⚠ ${lastTtsError} · ${info}` : `✓ Test done · ${info}`);
+  const hint = IS_IOS ? ' · nic neslyšíš? vypni tichý režim' : '';
+  setStatus('', lastTtsError ? `⚠ ${lastTtsError} · ${info}` : `✓ Test done · ${info}${hint}`);
 }
 
 function setStatus(state, text) {

@@ -111,6 +111,7 @@ playWord(idx)
 
 - **SpeechSynthesis voices** load async (`loadVoices()` + `onvoiceschanged`).
 - **iOS TTS** (Safari + home-screen app): speech is unlocked by a silent utterance in the first user gesture (`unlockTts()`); `speak()` waits ~150 ms after any `stopSpeech()` because WebKit silently drops speak right after cancel; on iOS a voice is set only for an exact-locale local voice, otherwise the system picks by `utt.lang` (non-downloaded voices play silence); watchdog timeout in case `onend` never fires. Always cancel via `stopSpeech()`, never `speechSynthesis.cancel()` directly. "🔊 Test" button in the status bar shows voice count, chosen voices and last TTS error.
+- **iOS silent mode (Ring/Silent switch) mutes Web Speech and it can't be bypassed from a web page** — tried looping silent `<audio>` + `navigator.audioSession.type = "playback"`, didn't help (and paused the user's music), reverted. On iOS the app shows a dismissible hint (`#iosHint`, dismissal in `localStorage` `drivenglish_ios_hint_dismissed`). Only real fix would be pre-generated audio files (cloud TTS → MP3) played as media.
 - **Safari** requires `SpeechRecognition.continuous = false` — handled with manual restart in `r.onend`.
 - **Microphone permission** `not-allowed` disables voice control and shows an error state.
 - Zero Trust free plan: max 50 users.
