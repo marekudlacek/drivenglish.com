@@ -24,21 +24,27 @@ Vocabulary learning app for learning English while driving — plays words aloud
 ## Local development
 
 ```bash
-npm i -g wrangler            # or use npx
 cp .dev.vars.example .dev.vars   # sets DEV_USER_EMAIL, bypasses Access on localhost only
-wrangler d1 migrations apply drivenglish --local
-wrangler dev
+npm run dev                      # applies D1 migrations locally + wrangler dev
 ```
 
 Open http://localhost:8787.
 
-## Deployment (Cloudflare)
+## Deployment (Cloudflare Workers Builds, from `main`)
 
-1. `wrangler d1 create drivenglish` → put the `database_id` into `wrangler.toml`.
-2. `wrangler d1 migrations apply drivenglish --remote`
-3. Zero Trust → Access → Applications → **Add self-hosted app** for `drivenglish.com` (path `/*`), policy **Allow / Everyone**, login method **One-time PIN**.
-   Copy the **Application Audience (AUD) tag** → `ACCESS_AUD`, team domain (`<team>.cloudflareaccess.com`) → `ACCESS_TEAM_DOMAIN` in `wrangler.toml`.
-4. `wrangler deploy`, then attach the custom domain `drivenglish.com` to the Worker (Workers → drivenglish → Settings → Domains & Routes) and detach it from the old Pages project.
+Every push to `main` builds and deploys automatically. The deploy command applies pending D1 migrations first (`wrangler` tracks applied ones in the `d1_migrations` table, so re-running is safe), then deploys the Worker.
+
+One-time setup:
+
+1. **Access first** — Zero Trust → Access → Applications → *Add self-hosted app* for `drivenglish.com` (path `/*`), policy **Allow / Everyone**, login method **One-time PIN**. Copy the **Application Audience (AUD) tag** into `ACCESS_AUD` in `wrangler.toml` and push. Without it every API call returns 401.
+2. Workers & Pages → Create → **Import a repository** → `marekudlacek/drivenglish.com`
+   - Production branch: `main`
+   - Build command: *(empty)*
+   - **Deploy command: `npm run deploy`**
+3. Make sure the Workers Builds API token has **D1 → Edit** permission (Settings → Builds → API token); otherwise the migration step fails.
+4. Attach the custom domain `drivenglish.com` to the Worker (Settings → Domains & Routes) and detach it from the old Pages project.
+
+D1 database `drivenglish` and team domain are already set in `wrangler.toml`. Adding a schema change = new file `migrations/000N_*.sql`; it is applied on the next deploy.
 
 > Free Zero Trust plan covers up to 50 users.
 

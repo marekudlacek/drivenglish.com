@@ -98,7 +98,9 @@ playWord(idx)
 
 ## Dev & deploy
 
-See README. Short version: `wrangler d1 migrations apply drivenglish --local && wrangler dev`; deploy with `wrangler deploy` (drag-and-drop upload no longer works — there is server code).
+- Local: `npm run dev` (= `wrangler d1 migrations apply --local && wrangler dev`). `package.json` has scripts only, no dependencies — wrangler via `npx wrangler@4`.
+- Prod: Cloudflare Workers Builds connected to the repo, branch `main`, deploy command `npm run deploy` (= `d1 migrations apply --remote && wrangler deploy`). Schema changes go into a new `migrations/000N_*.sql`, never edit an applied migration.
+- `wrangler.toml` holds D1 `database_id` and `ACCESS_TEAM_DOMAIN` (not secrets). `ACCESS_AUD` must be filled in after creating the Access app.
 
 ## Known limitations / gotchas
 
